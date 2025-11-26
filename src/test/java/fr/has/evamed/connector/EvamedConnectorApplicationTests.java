@@ -1,4 +1,4 @@
-package fr.has.evamedconnector;
+package fr.has.evamed.connector;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package fr.has.evamedconnector;
+package fr.has.evamed.connector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
