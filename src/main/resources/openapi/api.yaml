@@ -1,0 +1,573 @@
+openapi: 3.0.3
+info:
+  title: Evamed Connector API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/utilisateurs:
+    get:
+      summary: Liste des utilisateurs
+      tags:
+        - utilisateur
+      responses:
+        '200':
+          description: Utilisateurs trouvés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UtilisateurDto'
+  /api/utilisateurs/{id}:
+    get:
+      summary: Récupérer un utilisateur par identifiant
+      tags:
+        - utilisateur
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            format: int64
+          required: true
+      responses:
+        '200':
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UtilisateurDto'
+        '404':
+          description: Utilisateur introuvable
+  /api/ref-type-services:
+    get:
+      summary: Liste des types de service
+      tags:
+        - ref-type-service
+      responses:
+        '200':
+          description: Types de service
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefTypeServiceDto'
+  /api/ref-type-services/{srvCode}:
+    get:
+      summary: Récupérer un type de service
+      tags:
+        - ref-type-service
+      parameters:
+        - in: path
+          name: srvCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Type de service trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefTypeServiceDto'
+        '404':
+          description: Type de service introuvable
+  /api/ref-profils:
+    get:
+      summary: Liste des profils
+      tags:
+        - ref-profil
+      responses:
+        '200':
+          description: Profils
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefProfilDto'
+  /api/ref-profils/{prfCode}:
+    get:
+      summary: Récupérer un profil
+      tags:
+        - ref-profil
+      parameters:
+        - in: path
+          name: prfCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Profil trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefProfilDto'
+        '404':
+          description: Profil introuvable
+  /api/ref-groupe-roles:
+    get:
+      summary: Liste des groupes de rôles
+      tags:
+        - ref-groupe-role
+      responses:
+        '200':
+          description: Groupes de rôles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefGroupeRoleDto'
+  /api/ref-groupe-roles/{grrCode}:
+    get:
+      summary: Récupérer un groupe de rôles
+      tags:
+        - ref-groupe-role
+      parameters:
+        - in: path
+          name: grrCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Groupe de rôles trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefGroupeRoleDto'
+        '404':
+          description: Groupe de rôles introuvable
+  /api/ref-roles:
+    get:
+      summary: Liste des rôles
+      tags:
+        - ref-role
+      responses:
+        '200':
+          description: Rôles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefRoleDto'
+  /api/ref-roles/{rolCode}:
+    get:
+      summary: Récupérer un rôle
+      tags:
+        - ref-role
+      parameters:
+        - in: path
+          name: rolCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Rôle trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefRoleDto'
+        '404':
+          description: Rôle introuvable
+  /api/ref-profil-ref-roles:
+    get:
+      summary: Liste des associations profil-rôle
+      tags:
+        - ref-profil-ref-role
+      responses:
+        '200':
+          description: Associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefProfilRefRoleDto'
+  /api/ref-profil-ref-roles/{prfCode}/{rolCode}:
+    get:
+      summary: Récupérer une association profil-rôle
+      tags:
+        - ref-profil-ref-role
+      parameters:
+        - in: path
+          name: prfCode
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: rolCode
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Association trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefProfilRefRoleDto'
+        '404':
+          description: Association introuvable
+  /api/ref-type-dossier-associes:
+    get:
+      summary: Liste des types de dossier associé
+      tags:
+        - ref-type-dossier-associe
+      responses:
+        '200':
+          description: Types de dossier associé
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefTypeDossierAssocieDto'
+  /api/ref-type-dossier-associes/{tdaCode}:
+    get:
+      summary: Récupérer un type de dossier associé
+      tags:
+        - ref-type-dossier-associe
+      parameters:
+        - in: path
+          name: tdaCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Type de dossier associé trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefTypeDossierAssocieDto'
+        '404':
+          description: Type de dossier associé introuvable
+  /api/ref-liste-ma-page:
+    get:
+      summary: Liste des listes "ma page"
+      tags:
+        - ref-liste-ma-page
+      responses:
+        '200':
+          description: Listes ma page
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RefListeMaPageDto'
+  /api/ref-liste-ma-page/{impCode}/{utId}:
+    get:
+      summary: Récupérer une liste "ma page"
+      tags:
+        - ref-liste-ma-page
+      parameters:
+        - in: path
+          name: impCode
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: utId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste ma page trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefListeMaPageDto'
+        '404':
+          description: Liste ma page introuvable
+  /api/ma-page-utilisateurs:
+    get:
+      summary: Liste des pages utilisateur
+      tags:
+        - ma-page-utilisateur
+      responses:
+        '200':
+          description: Pages utilisateur
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MaPageUtilisateurDto'
+  /api/ma-page-utilisateurs/{mpaCode}:
+    get:
+      summary: Récupérer une page utilisateur
+      tags:
+        - ma-page-utilisateur
+      parameters:
+        - in: path
+          name: mpaCode
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Page utilisateur trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaPageUtilisateurDto'
+        '404':
+          description: Page utilisateur introuvable
+  /api/ma-selections:
+    get:
+      summary: Liste des sélections
+      tags:
+        - ma-selection
+      responses:
+        '200':
+          description: Sélections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MaSelectionDto'
+  /api/ma-selections/{mseId}:
+    get:
+      summary: Récupérer une sélection
+      tags:
+        - ma-selection
+      parameters:
+        - in: path
+          name: mseId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Sélection trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaSelectionDto'
+        '404':
+          description: Sélection introuvable
+  /api/liste-partage-utilisateurs:
+    get:
+      summary: Liste des partages de sélection
+      tags:
+        - liste-partage-utilisateur
+      responses:
+        '200':
+          description: Partages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListePartageUtilisateurDto'
+  /api/liste-partage-utilisateurs/{mseId}/{utId}:
+    get:
+      summary: Récupérer un partage de sélection
+      tags:
+        - liste-partage-utilisateur
+      parameters:
+        - in: path
+          name: mseId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: path
+          name: utId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Partage trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListePartageUtilisateurDto'
+        '404':
+          description: Partage introuvable
+components:
+  schemas:
+    UtilisateurDto:
+      type: object
+      properties:
+        utId:
+          type: integer
+          format: int64
+        prfCode:
+          type: string
+        srvCode:
+          type: string
+        utNom:
+          type: string
+        utPrenom:
+          type: string
+        utLogin:
+          type: string
+        utTelephone:
+          type: string
+        utFax:
+          type: string
+        utEmail:
+          type: string
+        utArchive:
+          type: boolean
+        utDateModif:
+          type: string
+          format: date-time
+        utDenomNorm:
+          type: string
+      required:
+        - utDenomNorm
+    RefTypeServiceDto:
+      type: object
+      properties:
+        srvCode:
+          type: string
+        srvLibelle:
+          type: string
+        srvDateSupLog:
+          type: string
+          format: date-time
+      required:
+        - srvCode
+    RefProfilDto:
+      type: object
+      properties:
+        prfCode:
+          type: string
+        prfLibelle:
+          type: string
+        prfDateSupLog:
+          type: string
+          format: date-time
+      required:
+        - prfCode
+    RefGroupeRoleDto:
+      type: object
+      properties:
+        grrCode:
+          type: string
+        grrLibelle:
+          type: string
+        grrDateSupLog:
+          type: string
+          format: date-time
+      required:
+        - grrCode
+    RefRoleDto:
+      type: object
+      properties:
+        rolCode:
+          type: string
+        rolLibelle:
+          type: string
+        rolOrdre:
+          type: integer
+        rolDateSupLog:
+          type: string
+          format: date-time
+        grrCode:
+          type: string
+      required:
+        - rolCode
+        - grrCode
+    RefProfilRefRoleDto:
+      type: object
+      properties:
+        prfCode:
+          type: string
+        rolCode:
+          type: string
+      required:
+        - prfCode
+        - rolCode
+    RefTypeDossierAssocieDto:
+      type: object
+      properties:
+        tdaCode:
+          type: string
+        tdaLibelle:
+          type: string
+        tdaDateSupLog:
+          type: string
+          format: date-time
+      required:
+        - tdaCode
+    RefListeMaPageDto:
+      type: object
+      properties:
+        impCode:
+          type: string
+        utId:
+          type: integer
+          format: int64
+        impLibelle:
+          type: string
+        impDateSupLog:
+          type: string
+          format: date-time
+        tdaCode:
+          type: string
+        ordre:
+          type: integer
+      required:
+        - impCode
+        - utId
+    MaPageUtilisateurDto:
+      type: object
+      properties:
+        mpaCode:
+          type: string
+        utId:
+          type: integer
+          format: int64
+        mpaLibelle:
+          type: string
+        mpaDateSupLog:
+          type: string
+          format: date-time
+        ordre:
+          type: integer
+      required:
+        - mpaCode
+        - utId
+    MaSelectionDto:
+      type: object
+      properties:
+        mseId:
+          type: integer
+          format: int64
+        mseLibelle:
+          type: string
+        utId:
+          type: integer
+          format: int64
+      required:
+        - mseId
+        - utId
+    ListePartageUtilisateurDto:
+      type: object
+      properties:
+        mseId:
+          type: integer
+          format: int64
+        utId:
+          type: integer
+          format: int64
+      required:
+        - mseId
+        - utId
