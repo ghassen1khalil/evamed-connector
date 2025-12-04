@@ -107,15 +107,38 @@
                                 <serializableModel>true</serializableModel>
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <dateLibrary>java8</dateLibrary>
+                                <useTags>true</useTags>
                             </configOptions>
                             <typeMappings>
-                                <typeMapping>date=java.time.LocalDateTime</typeMapping>
+                                <typeMapping>date=java.time.LocalDate</typeMapping>
                                 <typeMapping>date-time=java.time.LocalDateTime</typeMapping>
                             </typeMappings>
                             <globalProperties>
-                                <models>true</models>
-                                <apis>true</apis>
+                                <models/>
+                                <apis/>
+                                <apiTests>false</apiTests>
+                                <modelTests>false</modelTests>
                             </globalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Ensure generated sources are added to the compile classpath -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>add-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>

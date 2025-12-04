@@ -13,6 +13,8 @@ paths:
       summary: List projects
       description: Returns paginated projects ordered by creation date descending unless specified otherwise.
       operationId: listProjects
+      tags:
+        - Projects
       parameters:
         - name: offset
           in: query
@@ -83,6 +85,8 @@ paths:
       summary: Get project details
       description: Retrieves a single project by its identifier.
       operationId: getProjectById
+      tags:
+        - Projects
       parameters:
         - name: projectId
           in: path
