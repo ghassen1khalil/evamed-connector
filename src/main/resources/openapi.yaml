@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: Evamed Connector API
+  description: |
+    OpenAPI v3 specification exposing read-only operations for EVAMED data.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /projects:
+    get:
+      summary: List projects
+      description: Returns paginated projects ordered by creation date descending unless specified otherwise.
+      operationId: listProjects
+      parameters:
+        - name: offset
+          in: query
+          description: Zero-based index of the first item to return.
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: Maximum number of items to return.
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Paginated list of projects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjects'
+              examples:
+                sample:
+                  summary: Example project list
+                  value:
+                    data:
+                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                        number: "PRJ-2024-001"
+                        type: "clinical"
+                        title: "Study on treatment efficacy"
+                        isSensitive: false
+                        applicationDomain: "pharmaceutical"
+                        phases:
+                          - beginDate: "2024-01-15"
+                            endDate: "2024-06-15"
+                            label: "Phase I"
+                        projectManagers:
+                          - firstName: "Alex"
+                            lastName: "Durand"
+                            isPrimary: true
+                            isSecondary: false
+                        managementAssistant: "Louise Martin"
+                        creationAt: "2024-01-01T10:00:00Z"
+                        endAt: "2024-12-31T18:00:00Z"
+                    pagination:
+                      offset: 0
+                      limit: 20
+                      totalItems: 1
+                      totalPages: 1
+        "400":
+          description: Invalid pagination parameters supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /projects/{projectId}:
+    get:
+      summary: Get project details
+      description: Retrieves a single project by its identifier.
+      operationId: getProjectById
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: Unique project identifier.
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        "200":
+          description: Project detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        "404":
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    PaginatedProjects:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      type: object
+      required:
+        - offset
+        - limit
+        - totalItems
+        - totalPages
+      properties:
+        offset:
+          type: integer
+          minimum: 0
+          description: Offset used in the current response.
+        limit:
+          type: integer
+          minimum: 1
+          description: Page size used in the current response.
+        totalItems:
+          type: integer
+          minimum: 0
+          description: Total number of available projects.
+        totalPages:
+          type: integer
+          minimum: 0
+          description: Total number of pages available with the given limit.
+    Project:
+      type: object
+      required:
+        - id
+        - number
+        - type
+        - title
+        - isSensitive
+        - applicationDomain
+        - phases
+        - projectManagers
+        - managementAssistant
+        - creationAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the project.
+        number:
+          type: string
+          description: Business reference number of the project.
+        type:
+          type: string
+          description: Category or nature of the project.
+        title:
+          type: string
+          description: Descriptive title of the project.
+        isSensitive:
+          type: boolean
+          description: Indicates whether the project handles sensitive data.
+        applicationDomain:
+          type: string
+          description: Application domain of the project.
+        phases:
+          type: array
+          description: Chronological list of the project phases.
+          items:
+            $ref: '#/components/schemas/Phase'
+        projectManagers:
+          type: array
+          description: Primary and secondary managers supervising the project.
+          items:
+            $ref: '#/components/schemas/ProjectManager'
+        managementAssistant:
+          type: string
+          description: Assistant assigned to the project management team.
+        creationAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the project was created.
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: ISO-8601 timestamp when the project ended, if applicable.
+    Phase:
+      type: object
+      required:
+        - beginDate
+        - endDate
+        - label
+      properties:
+        beginDate:
+          type: string
+          format: date
+          description: Phase start date.
+        endDate:
+          type: string
+          format: date
+          description: Phase end date.
+        label:
+          type: string
+          description: Human-readable phase name.
+    ProjectManager:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - isPrimary
+        - isSecondary
+      properties:
+        firstName:
+          type: string
+          description: Manager's given name.
+        lastName:
+          type: string
+          description: Manager's family name.
+        isPrimary:
+          type: boolean
+          description: Indicates if the manager is the primary contact.
+        isSecondary:
+          type: boolean
+          description: Indicates if the manager acts as secondary contact.
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Application-specific error code.
+        message:
+          type: string
+          description: Human-readable error description.
