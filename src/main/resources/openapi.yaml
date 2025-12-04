@@ -2,8 +2,7 @@ openapi: 3.0.3
 info:
   title: Evamed Connector API
   description: |
-    OpenAPI v3 specification exposing read-only operations for Project resources.
-    Supports offset-based pagination for listing projects.
+    OpenAPI v3 specification exposing read-only operations for EVAMED data.
   version: 1.0.0
 servers:
   - url: http://localhost:8080
