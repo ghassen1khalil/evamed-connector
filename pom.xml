@@ -65,6 +65,15 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -77,12 +86,45 @@
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-openapi</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <generatorName>spring</generatorName>
+                            <library>spring-boot</library>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <apiPackage>fr.has.evamed.connector.rest.api</apiPackage>
+                            <modelPackage>fr.has.evamed.connector.domain</modelPackage>
+                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <useJakartaEe>true</useJakartaEe>
+                                <interfaceOnly>true</interfaceOnly>
+                                <serializableModel>true</serializableModel>
+                                <sourceFolder>src/main/java</sourceFolder>
+                                <dateLibrary>java8</dateLibrary>
+                            </configOptions>
+                            <typeMappings>
+                                <typeMapping>date=java.time.LocalDateTime</typeMapping>
+                                <typeMapping>date-time=java.time.LocalDateTime</typeMapping>
+                            </typeMappings>
+                            <globalProperties>
+                                <models>true</models>
+                                <apis>true</apis>
+                            </globalProperties>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Plugin jOOQ Codegen -->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.19.0</version> <!-- adapte à ta version -->
+                <version>3.19.0</version> &lt;!&ndash; adapte à ta version &ndash;&gt;
                 <executions>
                     <execution>
                         <id>generate-jooq</id>
@@ -114,7 +156,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
