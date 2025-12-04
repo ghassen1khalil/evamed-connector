@@ -39,11 +39,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>-->
-        <!--<dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -77,6 +77,43 @@
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <version>${openapi-generator.version}</version>
+            </plugin>
+            <!-- Plugin jOOQ Codegen -->
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>3.19.0</version> <!-- adapte à ta version -->
+                <executions>
+                    <execution>
+                        <id>generate-jooq</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <jdbc>
+                                <driver>org.postgresql.Driver</driver>
+                                <url>jdbc:postgresql://10.10.200.15:5432/evamed</url>
+                                <user>evamed</user>
+                                <password>evamed</password>
+                            </jdbc>
+                            <generator>
+                                <database>
+                                    <name>fr.has.evamed.domain</name>
+                                    <inputSchema>evamed</inputSchema>
+                                </database>
+                                <generate>
+                                    <daos>false</daos>
+                                    <pojos>false</pojos>
+                                </generate>
+                                <target>
+                                    <packageName>fr.has.evamed.domain.entities</packageName>
+                                    <directory>target/generated-sources/evamed</directory>
+                                </target>
+                            </generator>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
