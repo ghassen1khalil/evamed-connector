@@ -11,40 +11,121 @@ paths:
   /projects:
     get:
       summary: List projects
-      description: Returns paginated projects ordered by creation date descending unless specified otherwise.
+      description: |
+        Returns a paginated list of projects. All provided filters are combined with logical AND.
+        Results are ordered by creation date descending unless a custom sort is provided.
       operationId: listProjects
       tags:
         - Projects
       parameters:
-        - name: offset
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - name: projectManagerId
           in: query
-          description: Zero-based index of the first item to return.
           required: false
+          description: Filter by the identifier of a project manager assigned to the project.
           schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: limit
+            type: string
+        - name: managementAssistantId
           in: query
-          description: Maximum number of items to return.
           required: false
+          description: Filter by the identifier of a management assistant assigned to the project.
           schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 20
+            type: string
+        - name: number
+          in: query
+          required: false
+          description: Filter by project number (exact match).
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          description: Filter by project title (partial match supported).
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          description: Filter by project type.
+          schema:
+            type: string
+        - name: applicationDomain
+          in: query
+          required: false
+          description: Filter by application domain.
+          schema:
+            type: string
+        - name: isSensitive
+          in: query
+          required: false
+          description: Filter by sensitive flag.
+          schema:
+            type: boolean
+        - name: creationAtFrom
+          in: query
+          required: false
+          description: Include projects created on or after this timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: creationAtTo
+          in: query
+          required: false
+          description: Include projects created on or before this timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: endAtFrom
+          in: query
+          required: false
+          description: Include projects ending on or after this timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: endAtTo
+          in: query
+          required: false
+          description: Include projects ending on or before this timestamp.
+          schema:
+            type: string
+            format: date-time
+        - name: sortBy
+          in: query
+          required: false
+          description: Field used to sort results. Supported values are number, title, creationAt, endAt, type, and applicationDomain.
+          schema:
+            type: string
+            enum:
+              - number
+              - title
+              - creationAt
+              - endAt
+              - type
+              - applicationDomain
+            default: creationAt
+        - name: sortDirection
+          in: query
+          required: false
+          description: Sort direction applied to the sortBy field.
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
       responses:
         "200":
           description: Paginated list of projects.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedProjects'
+                $ref: '#/components/schemas/PaginatedProjectResponse'
               examples:
                 sample:
                   summary: Example project list
                   value:
-                    data:
+                    items:
                       - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
                         number: "PRJ-2024-001"
                         type: "clinical"
@@ -63,23 +144,27 @@ paths:
                         managementAssistant: "Louise Martin"
                         creationAt: "2024-01-01T10:00:00Z"
                         endAt: "2024-12-31T18:00:00Z"
-                    pagination:
-                      offset: 0
-                      limit: 20
-                      totalItems: 1
-                      totalPages: 1
+                    limit: 20
+                    offset: 0
+                    total: 1
         "400":
-          description: Invalid pagination parameters supplied.
+          description: Invalid query parameters supplied.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects matched the provided filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
           description: Unexpected server error.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
   /projects/{projectId}:
     get:
       summary: Get project details
@@ -102,56 +187,55 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+        "400":
+          description: Invalid project identifier supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         "404":
           description: Project not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
         "500":
           description: Unexpected server error.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    PaginatedProjects:
+    PaginatedProjectResponse:
       type: object
+      description: Standard paginated response envelope for projects.
       required:
-        - data
-        - pagination
+        - items
+        - limit
+        - offset
+        - total
       properties:
-        data:
+        items:
           type: array
+          description: List of projects in the current page.
           items:
             $ref: '#/components/schemas/Project'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-    Pagination:
-      type: object
-      required:
-        - offset
-        - limit
-        - totalItems
-        - totalPages
-      properties:
-        offset:
-          type: integer
-          minimum: 0
-          description: Offset used in the current response.
         limit:
           type: integer
+          description: Number of items requested per page.
           minimum: 1
-          description: Page size used in the current response.
-        totalItems:
+          maximum: 100
+          default: 20
+        offset:
           type: integer
+          description: Zero-based index of the first item returned.
           minimum: 0
-          description: Total number of available projects.
-        totalPages:
+          default: 0
+        total:
           type: integer
+          description: Total number of projects matching the filters (without pagination).
           minimum: 0
-          description: Total number of pages available with the given limit.
     Project:
       type: object
       required:
@@ -245,8 +329,9 @@ components:
         isSecondary:
           type: boolean
           description: Indicates if the manager acts as secondary contact.
-    Error:
+    ErrorResponse:
       type: object
+      description: Standard error envelope returned by the API.
       required:
         - code
         - message
@@ -257,3 +342,32 @@ components:
         message:
           type: string
           description: Human-readable error description.
+        details:
+          description: Optional additional information about the error.
+          nullable: true
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - type: object
+              additionalProperties: true
+  parameters:
+    Offset:
+      name: offset
+      in: query
+      description: Zero-based index of the first item to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return (maximum 100).
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
