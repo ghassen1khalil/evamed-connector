@@ -1,13 +1,14 @@
 package fr.has.evamed.connector.controller;
 
-import fr.has.evamed.connector.domain.PaginatedProjectsDto;
+import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
 import fr.has.evamed.connector.domain.ProjectDto;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.http.HttpStatus.OK;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ProjectsController implements ProjectsApi {
@@ -19,14 +20,23 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<PaginatedProjectsDto> listProjects(Integer offset, Integer limit) {
-        PaginatedProjectsDto projects = projectService.listProjects(offset, limit);
-        return ResponseEntity.status(OK).body(projects);
+    public ResponseEntity<ProjectDto> getProjectById(String projectId) {
+        return ProjectsApi.super.getProjectById(projectId);
     }
 
     @Override
-    public ResponseEntity<ProjectDto> getProjectById(String projectId) {
-        ProjectDto project = projectService.getProjectById(projectId);
-        return ResponseEntity.status(OK).body(project);
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForAssistant() {
+        return ProjectsApi.super.getProjectsForAssistant();
+    }
+
+    @Override
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForManager() {
+        return ProjectsApi.super.getProjectsForManager();
+    }
+
+    @Override
+    public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset, Integer limit, String projectManagerId, String managementAssistantId, String sortBy, String sortDirection) {
+        projectService.getProjects(offset, limit);
+        return ProjectsApi.super.getProjects(offset, limit, projectManagerId, managementAssistantId, sortBy, sortDirection);
     }
 }
