@@ -108,6 +108,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /projects/by-manager:
+    get:
+      summary: Group projects by project manager
+      description: |-
+        Returns projects grouped by their associated project managers. Each entry in the
+        response includes the manager details and the list of projects managed by that
+        person. All projects for a manager are returned together and pagination is not
+        applied because the grouping is keyed by project manager rather than by individual
+        projects.
+      operationId: getProjectsForManager
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Projects grouped by project manager.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsByManagerResponse'
+              examples:
+                sample:
+                  summary: Example projects by manager
+                  value:
+                    items:
+                      - projectManager:
+                          firstName: "Alex"
+                          lastName: "Durand"
+                          isPrimary: true
+                          isSecondary: false
+                        projects:
+                          - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                            number: "PRJ-2024-001"
+                            type: "clinical"
+                            title: "Study on treatment efficacy"
+                            isSensitive: false
+                            applicationDomain: "pharmaceutical"
+                            phases:
+                              - beginDate: "2024-01-15"
+                                endDate: "2024-06-15"
+                                label: "Phase I"
+                            projectManagers:
+                              - firstName: "Alex"
+                                lastName: "Durand"
+                                isPrimary: true
+                                isSecondary: false
+                            managementAssistant: "Louise Martin"
+                            creationAt: "2024-01-01T10:00:00Z"
+                            endAt: "2024-12-31T18:00:00Z"
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects were found for any project manager.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /projects/{projectId}:
     get:
       summary: Get project details
@@ -234,6 +300,31 @@ components:
           format: date-time
           nullable: true
           description: ISO-8601 timestamp when the project ended, if applicable.
+    ProjectsByManagerResponse:
+      type: object
+      description: Projects grouped by project manager.
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          description: Collection of project managers with their associated projects.
+          items:
+            $ref: '#/components/schemas/ProjectManagerProjects'
+    ProjectManagerProjects:
+      type: object
+      description: Projects assigned to a single project manager.
+      required:
+        - projectManager
+        - projects
+      properties:
+        projectManager:
+          $ref: '#/components/schemas/ProjectManager'
+        projects:
+          type: array
+          description: Projects managed by this person.
+          items:
+            $ref: '#/components/schemas/Project'
     Phase:
       type: object
       required:
