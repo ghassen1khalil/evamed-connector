@@ -14,7 +14,7 @@ paths:
       description: |
         Returns a paginated list of projects. All provided filters are combined with logical AND.
         Results are ordered by creation date descending unless a custom sort is provided.
-      operationId: listProjects
+      operationId: getProjects
       tags:
         - Projects
       parameters:
