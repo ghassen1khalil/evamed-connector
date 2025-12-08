@@ -15,7 +15,7 @@ paths:
         Returns a paginated list of projects. Optional filters for project manager and
         management assistant can be combined with logical AND. Results are ordered by
         creation date descending unless a custom sort is provided.
-      operationId: listProjects
+      operationId: getProjects
       tags:
         - Projects
       parameters:
@@ -113,10 +113,10 @@ paths:
       summary: Group projects by project manager
       description: |-
         Returns projects grouped by their associated project managers. Each entry in the
-        response includes the manager details and the list of projects managed by that
-        person. All projects for a manager are returned together and pagination is not
-        applied because the grouping is keyed by project manager rather than by individual
-        projects.
+        response is a map keyed by the serialized project manager representation, with the
+        value containing the list of projects managed by that person. All projects for a
+        manager are returned together and pagination is not applied because the grouping
+        is keyed by project manager rather than by individual projects.
       operationId: getProjectsForManager
       tags:
         - Projects
@@ -131,31 +131,25 @@ paths:
                 sample:
                   summary: Example projects by manager
                   value:
-                    items:
-                      - projectManager:
-                          firstName: "Alex"
-                          lastName: "Durand"
-                          isPrimary: true
-                          isSecondary: false
-                        projects:
-                          - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
-                            number: "PRJ-2024-001"
-                            type: "clinical"
-                            title: "Study on treatment efficacy"
-                            isSensitive: false
-                            applicationDomain: "pharmaceutical"
-                            phases:
-                              - beginDate: "2024-01-15"
-                                endDate: "2024-06-15"
-                                label: "Phase I"
-                            projectManagers:
-                              - firstName: "Alex"
-                                lastName: "Durand"
-                                isPrimary: true
-                                isSecondary: false
-                            managementAssistant: "Louise Martin"
-                            creationAt: "2024-01-01T10:00:00Z"
-                            endAt: "2024-12-31T18:00:00Z"
+                    "{\"firstName\":\"Alex\",\"lastName\":\"Durand\",\"isPrimary\":true,\"isSecondary\":false}":
+                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                        number: "PRJ-2024-001"
+                        type: "clinical"
+                        title: "Study on treatment efficacy"
+                        isSensitive: false
+                        applicationDomain: "pharmaceutical"
+                        phases:
+                          - beginDate: "2024-01-15"
+                            endDate: "2024-06-15"
+                            label: "Phase I"
+                        projectManagers:
+                          - firstName: "Alex"
+                            lastName: "Durand"
+                            isPrimary: true
+                            isSecondary: false
+                        managementAssistant: "Louise Martin"
+                        creationAt: "2024-01-01T10:00:00Z"
+                        endAt: "2024-12-31T18:00:00Z"
         "400":
           description: Invalid request.
           content:
@@ -164,6 +158,66 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         "404":
           description: No projects were found for any project manager.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/by-management-assistant:
+    get:
+      summary: Group projects by management assistant
+      description: |-
+        Returns projects grouped by their associated management assistants. Each entry in the
+        response is a map keyed by the serialized management assistant representation, with the
+        value containing the list of projects supported by that assistant. All projects for an
+        assistant are returned together and pagination is not applied because the grouping is
+        keyed by management assistant rather than individual projects.
+      operationId: getProjectsForAssistant
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Projects grouped by management assistant.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsByAssistantResponse'
+              examples:
+                sample:
+                  summary: Example projects by management assistant
+                  value:
+                    "{\"name\":\"Louise Martin\"}":
+                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                        number: "PRJ-2024-001"
+                        type: "clinical"
+                        title: "Study on treatment efficacy"
+                        isSensitive: false
+                        applicationDomain: "pharmaceutical"
+                        phases:
+                          - beginDate: "2024-01-15"
+                            endDate: "2024-06-15"
+                            label: "Phase I"
+                        projectManagers:
+                          - firstName: "Alex"
+                            lastName: "Durand"
+                            isPrimary: true
+                            isSecondary: false
+                        managementAssistant: "Louise Martin"
+                        creationAt: "2024-01-01T10:00:00Z"
+                        endAt: "2024-12-31T18:00:00Z"
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects were found for any management assistant.
           content:
             application/json:
               schema:
@@ -302,29 +356,20 @@ components:
           description: ISO-8601 timestamp when the project ended, if applicable.
     ProjectsByManagerResponse:
       type: object
-      description: Projects grouped by project manager.
-      required:
-        - items
-      properties:
+      description: Map of project managers to their projects. Keys are serialized representations of ProjectManager objects; values are lists of projects managed by the keyed manager.
+      additionalProperties:
+        type: array
+        description: Projects managed by the keyed project manager.
         items:
-          type: array
-          description: Collection of project managers with their associated projects.
-          items:
-            $ref: '#/components/schemas/ProjectManagerProjects'
-    ProjectManagerProjects:
+          $ref: '#/components/schemas/Project'
+    ProjectsByAssistantResponse:
       type: object
-      description: Projects assigned to a single project manager.
-      required:
-        - projectManager
-        - projects
-      properties:
-        projectManager:
-          $ref: '#/components/schemas/ProjectManager'
-        projects:
-          type: array
-          description: Projects managed by this person.
-          items:
-            $ref: '#/components/schemas/Project'
+      description: Map of management assistants to their projects. Keys are serialized representations of ManagementAssistant entries; values are lists of projects supported by the keyed assistant.
+      additionalProperties:
+        type: array
+        description: Projects supported by the keyed management assistant.
+        items:
+          $ref: '#/components/schemas/Project'
     Phase:
       type: object
       required:
