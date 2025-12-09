@@ -228,6 +228,114 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /projects/by-type:
+    get:
+      summary: Group projects by type
+      description: |-
+        Returns projects grouped by their type. Each entry in the response is a map keyed by
+        the project type, with the value containing the list of projects matching that type.
+        All projects for a type are returned together and pagination is not applied because
+        the grouping is keyed by type rather than individual projects.
+      operationId: getProjectsPerType
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Projects grouped by type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsByTypeResponse'
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects were found for any type.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/by-phase:
+    get:
+      summary: Group projects by phase
+      description: |-
+        Returns projects grouped by their phases. Each entry in the response is a map keyed by
+        the phase label, with the value containing the list of projects matching that phase.
+        All projects for a phase are returned together and pagination is not applied because
+        the grouping is keyed by phase rather than individual projects.
+      operationId: getProjectsPerPhase
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Projects grouped by phase.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsByPhaseResponse'
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects were found for any phase.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/by-domain:
+    get:
+      summary: Group projects by application domain
+      description: |-
+        Returns projects grouped by their application domain. Each entry in the response is a
+        map keyed by the application domain, with the value containing the list of projects
+        matching that domain. All projects for a domain are returned together and pagination is
+        not applied because the grouping is keyed by domain rather than individual projects.
+      operationId: getProjectsPerDomain
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: Projects grouped by application domain.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsByDomainResponse'
+        "400":
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects were found for any application domain.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /projects/{projectId}:
     get:
       summary: Get project details
@@ -368,6 +476,30 @@ components:
       additionalProperties:
         type: array
         description: Projects supported by the keyed management assistant.
+        items:
+          $ref: '#/components/schemas/Project'
+    ProjectsByTypeResponse:
+      type: object
+      description: Map of project types to their projects. Keys represent the type label; values are lists of projects for the keyed type.
+      additionalProperties:
+        type: array
+        description: Projects grouped for the type.
+        items:
+          $ref: '#/components/schemas/Project'
+    ProjectsByPhaseResponse:
+      type: object
+      description: Map of project phases to their projects. Keys represent the phase label; values are lists of projects for the keyed phase.
+      additionalProperties:
+        type: array
+        description: Projects grouped for the phase.
+        items:
+          $ref: '#/components/schemas/Project'
+    ProjectsByDomainResponse:
+      type: object
+      description: Map of project application domains to their projects. Keys represent the application domain; values are lists of projects for the keyed domain.
+      additionalProperties:
+        type: array
+        description: Projects grouped for the application domain.
         items:
           $ref: '#/components/schemas/Project'
     Phase:
