@@ -36,7 +36,7 @@ public class ProjectsController implements ProjectsApi {
 
     @Override
     public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset, Integer limit, String projectManagerId, String managementAssistantId, String sortBy, String sortDirection) {
-        projectService.getProjects(offset, limit);
-        return ProjectsApi.super.getProjects(offset, limit, projectManagerId, managementAssistantId, sortBy, sortDirection);
+        PaginatedProjectResponseDto result = projectService.getProjects(offset, limit);
+        return ResponseEntity.ok(result);
     }
 }
