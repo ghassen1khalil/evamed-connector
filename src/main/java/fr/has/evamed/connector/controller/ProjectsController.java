@@ -35,6 +35,21 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsPerDomain() {
+        return ProjectsApi.super.getProjectsPerDomain();
+    }
+
+    @Override
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsPerPhase() {
+        return ProjectsApi.super.getProjectsPerPhase();
+    }
+
+    @Override
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsPerType() {
+        return ProjectsApi.super.getProjectsPerType();
+    }
+
+    @Override
     public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset, Integer limit, String projectManagerId, String managementAssistantId, String sortBy, String sortDirection) {
         PaginatedProjectResponseDto result = projectService.getProjects(offset, limit);
         return ResponseEntity.ok(result);
