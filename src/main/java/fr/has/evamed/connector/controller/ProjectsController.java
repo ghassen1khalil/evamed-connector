@@ -1,14 +1,13 @@
 package fr.has.evamed.connector.controller;
 
-import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
-import fr.has.evamed.connector.domain.ProjectDto;
+import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 public class ProjectsController implements ProjectsApi {
@@ -25,18 +24,7 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForAssistant() {
-        return ProjectsApi.super.getProjectsForAssistant();
-    }
-
-    @Override
-    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForManager() {
-        return ProjectsApi.super.getProjectsForManager();
-    }
-
-    @Override
-    public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset, Integer limit, String projectManagerId, String managementAssistantId, String sortBy, String sortDirection) {
-        PaginatedProjectResponseDto result = projectService.getProjects(offset, limit);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType, Integer offset, Integer limit, List<String> projectManagerId, List<String> managementAssistantId, List<String> projectType, Boolean isSensitive, Boolean isProjectFinished, ProjectPhaseFilterDto phase, PeriodFilterDto period, String sortBy, String sortDirection) {
+        return ResponseEntity.ok(projectService.getProjects(offset, limit));
     }
 }

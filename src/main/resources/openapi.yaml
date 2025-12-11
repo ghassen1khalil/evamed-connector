@@ -21,18 +21,81 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
         - name: projectManagerId
           in: query
           required: false
-          description: Filter by the identifier of a project manager assigned to the project.
+          description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
+          style: form
+          explode: true
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - name: managementAssistantId
           in: query
           required: false
-          description: Filter by the identifier of a management assistant assigned to the project.
+          description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.
+          style: form
+          explode: true
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+        - name: projectType
+          in: query
+          required: false
+          description: Filter by project types. Accepts multiple values.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: isSensitive
+          in: query
+          required: false
+          description: Filter by sensitive flag.
+          schema:
+            type: boolean
+        - name : isProjectFinished
+          in: query
+          required: false
+          description: Filter by project finished flag.
+          schema: 
+            type: boolean
+        - name: phase
+          in: query
+          required: false
+          description: |
+            Project phase filter possible values :
+            - saisine
+            - debut_cadrage
+            - cadrage
+            - pgt
+            - dgt
+            - examen
+            - validation
+            - mise_en_ligne
+            - cloture
+          schema:
+            $ref: '#/components/schemas/ProjectPhaseFilter'
+
+        - name: period
+          in: query
+          required: false
+          description: |
+            Period filter containing a start date and an end date (inclusive).
+            Uses deepObject serialization: period[beginDate]=YYYY-MM-DD&period[endDate]=YYYY-MM-DD.
+          style: deepObject
+          explode: true
+          schema:
+            $ref: '#/components/schemas/PeriodFilter'
         - name: sortBy
           in: query
           required: false
@@ -108,126 +171,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /projects/by-manager:
-    get:
-      summary: Group projects by project manager
-      description: |-
-        Returns projects grouped by their associated project managers. Each entry in the
-        response is a map keyed by the serialized project manager representation, with the
-        value containing the list of projects managed by that person. All projects for a
-        manager are returned together and pagination is not applied because the grouping
-        is keyed by project manager rather than by individual projects.
-      operationId: getProjectsForManager
-      tags:
-        - Projects
-      responses:
-        "200":
-          description: Projects grouped by project manager.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectsByManagerResponse'
-              examples:
-                sample:
-                  summary: Example projects by manager
-                  value:
-                    "{\"firstName\":\"Alex\",\"lastName\":\"Durand\",\"isPrimary\":true,\"isSecondary\":false}":
-                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
-                        number: "PRJ-2024-001"
-                        type: "clinical"
-                        title: "Study on treatment efficacy"
-                        isSensitive: false
-                        applicationDomain: "pharmaceutical"
-                        phases:
-                          - beginDate: "2024-01-15"
-                            endDate: "2024-06-15"
-                            label: "Phase I"
-                        projectManagers:
-                          - firstName: "Alex"
-                            lastName: "Durand"
-                            isPrimary: true
-                            isSecondary: false
-                        managementAssistant: "Louise Martin"
-                        creationAt: "2024-01-01T10:00:00Z"
-                        endAt: "2024-12-31T18:00:00Z"
-        "400":
-          description: Invalid request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "404":
-          description: No projects were found for any project manager.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "500":
-          description: Unexpected server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /projects/by-management-assistant:
-    get:
-      summary: Group projects by management assistant
-      description: |-
-        Returns projects grouped by their associated management assistants. Each entry in the
-        response is a map keyed by the serialized management assistant representation, with the
-        value containing the list of projects supported by that assistant. All projects for an
-        assistant are returned together and pagination is not applied because the grouping is
-        keyed by management assistant rather than individual projects.
-      operationId: getProjectsForAssistant
-      tags:
-        - Projects
-      responses:
-        "200":
-          description: Projects grouped by management assistant.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectsByAssistantResponse'
-              examples:
-                sample:
-                  summary: Example projects by management assistant
-                  value:
-                    "{\"name\":\"Louise Martin\"}":
-                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
-                        number: "PRJ-2024-001"
-                        type: "clinical"
-                        title: "Study on treatment efficacy"
-                        isSensitive: false
-                        applicationDomain: "pharmaceutical"
-                        phases:
-                          - beginDate: "2024-01-15"
-                            endDate: "2024-06-15"
-                            label: "Phase I"
-                        projectManagers:
-                          - firstName: "Alex"
-                            lastName: "Durand"
-                            isPrimary: true
-                            isSecondary: false
-                        managementAssistant: "Louise Martin"
-                        creationAt: "2024-01-01T10:00:00Z"
-                        endAt: "2024-12-31T18:00:00Z"
-        "400":
-          description: Invalid request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "404":
-          description: No projects were found for any management assistant.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "500":
-          description: Unexpected server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
   /projects/{projectId}:
     get:
       summary: Get project details
@@ -270,6 +213,44 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    UserType:
+      type: string
+      description: Type of user issuing the request.
+      enum: [sbp, sr]
+      x-enum-varnames:
+        - SBP_SERVICE_MANAGER
+        - SR_SERVICE_MANAGER
+      x-enum-descriptions:
+        - SBP Service Manager
+        - SR Service Manager
+    ProjectPhaseFilter:
+      type: string
+      description: Project phase.
+      enum:
+        - saisine
+        - debut_cadrage
+        - cadrage
+        - pgt
+        - dgt
+        - examen
+        - validation
+        - mise_en_ligne
+        - cloture
+    PeriodFilter:
+      type: object
+      description: Objet période utilisé comme filtre de recherche, avec une date de début et une date de fin.
+      properties:
+        beginDate:
+          type: string
+          format: date
+          description: Date de début (incluse)
+        endDate:
+          type: string
+          format: date
+          description: Date de fin (incluse)
+      example:
+        beginDate: '2024-01-01'
+        endDate: '2024-12-31'
     PaginatedProjectResponse:
       type: object
       description: Standard paginated response envelope for projects.
@@ -315,14 +296,17 @@ components:
       properties:
         id:
           type: string
-          format: uuid
           description: Unique identifier of the project.
         number:
           type: string
           description: Business reference number of the project.
-        type:
+        typeCode:
           type: string
-          description: Category or nature of the project.
+          description: Project type code.
+        typologies:
+          type: array
+          items:
+            type: string
         title:
           type: string
           description: Descriptive title of the project.
@@ -332,82 +316,176 @@ components:
         applicationDomain:
           type: string
           description: Application domain of the project.
-        phases:
-          type: array
-          description: Chronological list of the project phases.
-          items:
-            $ref: '#/components/schemas/Phase'
         projectManagers:
-          type: array
-          description: Primary and secondary managers supervising the project.
-          items:
-            $ref: '#/components/schemas/ProjectManager'
+          type: object
+          description: Grouped lists of project managers.
+          properties:
+            primary:
+              type: array
+              description: List of primary managers supervising the project.
+              items:
+                $ref: '#/components/schemas/ProjectManager'
+            secondary:
+              type: array
+              description: List of secondary managers supervising the project.
+              items:
+                $ref: '#/components/schemas/ProjectManager'
         managementAssistant:
-          type: string
-          description: Assistant assigned to the project management team.
-        creationAt:
-          type: string
-          format: date-time
-          description: ISO-8601 timestamp when the project was created.
-        endAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: ISO-8601 timestamp when the project ended, if applicable.
-    ProjectsByManagerResponse:
-      type: object
-      description: Map of project managers to their projects. Keys are serialized representations of ProjectManager objects; values are lists of projects managed by the keyed manager.
-      additionalProperties:
-        type: array
-        description: Projects managed by the keyed project manager.
-        items:
-          $ref: '#/components/schemas/Project'
-    ProjectsByAssistantResponse:
-      type: object
-      description: Map of management assistants to their projects. Keys are serialized representations of ManagementAssistant entries; values are lists of projects supported by the keyed assistant.
-      additionalProperties:
-        type: array
-        description: Projects supported by the keyed management assistant.
-        items:
-          $ref: '#/components/schemas/Project'
-    Phase:
-      type: object
-      required:
-        - beginDate
-        - endDate
-        - label
-      properties:
-        beginDate:
+          type: array
+          description: Assistants assigned to the project management team.
+          items:
+            $ref: '#/components/schemas/ManagementAssistant'
+        referralDate:
           type: string
           format: date
-          description: Phase start date.
-        endDate:
+          description: Date of referral (Date de saisine).
+        scopingStartDate:
           type: string
           format: date
-          description: Phase end date.
-        label:
+          description: Date of starting scoping (Date début de cadrage)
+        scopingDate:
           type: string
-          description: Human-readable phase name.
+          format: date
+          description: Date of scoping (Date de cadrage).
+        pgtDate:
+          type: string
+          format: date
+          description: Date of PGT.
+        dgtDate:
+          type: string
+          format: date
+          description: Date of DGT.
+        reviewDate:
+          type: string
+          format: date
+          description: Date of review (Date d'examen).
+        validationDate:
+          type: string
+          format: date
+          description: Date of validation (Date de validation).
+        publicationDate:
+          type: string
+          format: date
+          description: Date of publication (Date de publication).
+        closureDate:
+          type: string
+          format: date
+          description: Date of closure (Date de clôture).
+        plannedScopingStartDate:
+          type: string
+          format: date
+          description: Date of starting scoping (Date début de cadrage)
+        plannedScopingDate:
+          type: string
+          format: date
+          description: Date of scoping (Date de cadrage).
+        plannedPgtDate:
+          type: string
+          format: date
+          description: Date of PGT.
+        plannedDgtDate:
+          type: string
+          format: date
+          description: Date of DGT.
+        plannedReviewDate:
+          type: string
+          format: date
+          description: Date of review (Date d'examen).
+        plannedValidationDate:
+          type: string
+          format: date
+          description: Date of validation (Date de validation).
+        plannedPublicationDate:
+          type: string
+          format: date
+          description: Date of publication (Date de publication).
+        plannedClosureDate:
+          type: string
+          format: date
+          description: Date of closure (Date de clôture).
+        gtglMeetings:
+          type: array
+          description: List of GTGL meetings held during the project.
+          items:
+            $ref: '#/components/schemas/GtGlMeeting'
+        commissionSessions:
+          type: array
+          description: List of commission sessions held during the project.
+          items:
+            $ref: '#/components/schemas/CommissionSession'
+        suspensions:
+          type: array
+          description: List of suspensions applied to the project.
+          items:
+            $ref: '#/components/schemas/Suspension'
     ProjectManager:
       type: object
       required:
+        - id
         - firstName
         - lastName
-        - isPrimary
-        - isSecondary
       properties:
+        id:
+          type: string
+          description: Unique identifier of the project manager.
         firstName:
           type: string
           description: Manager's given name.
         lastName:
           type: string
           description: Manager's family name.
-        isPrimary:
-          type: boolean
-          description: Indicates if the manager is the primary contact.
-        isSecondary:
-          type: boolean
-          description: Indicates if the manager acts as secondary contact.
+    ManagementAssistant:
+      type: object
+      required:
+        - id
+        - firstName
+        - lastName
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the management assistant.
+        firstName:
+          type: string
+          description: Management assistant's given name.
+        lastName:
+          type: string
+          description: Management assistant's family name.
+    GtGlMeeting:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date of the meeting.
+        label:
+          type: string
+          description: Label of the meeting.
+    CommissionSession:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date of the session.
+        label:
+          type: string
+    Suspension:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+          description: Start date of the suspension.
+        endDate:
+          type: string
+          format: date
+          description: End date of the suspension.
+        label:
+          type: string
+          description: Label of the suspension.
+        comment:
+          type: object
+          description: Comment associated with the suspension.
     ErrorResponse:
       type: object
       description: Standard error envelope returned by the API.

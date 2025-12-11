@@ -6,10 +6,12 @@ import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.time.LocalDate;
 
 import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.selectCount;
 
 @Repository
 public class ProjectRepository {
@@ -21,11 +23,53 @@ public class ProjectRepository {
     }
 
     public List<ProjectDto> getProjects(Integer offset, Integer limit) {
+        // Shortcut fields
+        var DOS_ID_LONG = field(name("evamed", "dossier", "dos_id"), Long.class);
+
+        // Computed/planned date fields using DB functions
+        var PREV_DEBUT_CADRAGE = field("pkg_dossier.f_get_date_pre_dcad({0})", LocalDate.class, DOS_ID_LONG).as("prev_debut_cadrage");
+        var PREV_CADRAGE = field("pkg_dossier.f_get_date_pre_cad({0})", LocalDate.class, DOS_ID_LONG).as("prev_cadrage");
+        var PREV_PGT = field("pkg_dossier.f_get_date_pre_pgt({0})", LocalDate.class, DOS_ID_LONG).as("prev_pgt");
+        var PREV_DGT = field("pkg_dossier.f_get_date_pre_dgt({0})", LocalDate.class, DOS_ID_LONG).as("prev_dgt");
+        var PREV_EXAMEN = field("pkg_dossier.f_get_date_pre_exa({0})", LocalDate.class, DOS_ID_LONG).as("prev_examen");
+        var PREV_VALIDATION = field("pkg_dossier.f_get_date_pre_val({0})", LocalDate.class, DOS_ID_LONG).as("prev_validation");
+        var PREV_MISE_EN_LIGNE = field("pkg_dossier.f_get_date_pre_dif({0})", LocalDate.class, DOS_ID_LONG).as("prev_mise_en_ligne");
+        var PREV_CLOTURE = field("pkg_dossier.f_get_date_pre_clo({0})", LocalDate.class, DOS_ID_LONG).as("prev_cloture");
+
+        // Subquery for sensible flag
+        var amp = table(name("evamed", "autre_membre_projet")).as("amp");
+        var SENSIBLE = selectCount()
+                .from(amp)
+                .where(field(name("amp", "utl_id"), Integer.class).eq(9461)
+                        .and(field(name("amp", "amp_aut"), Integer.class).eq(1))
+                        .and(field(name("amp", "dos_id"), Long.class).eq(DOS_ID_LONG)))
+                .asField("sensible");
+
         var records = context
                 .select(
                         ProjectRecordMapper.DOS_ID,
                         ProjectRecordMapper.DOS_NUMERO,
-                        ProjectRecordMapper.DOS_TITRE
+                        ProjectRecordMapper.TDOS_CODE,
+                        ProjectRecordMapper.DOS_TITRE,
+                        ProjectRecordMapper.PLA_COM,
+                        ProjectRecordMapper.DOS_DATE_SAISINE,
+                        ProjectRecordMapper.DOS_DATE_DEBUT_CADRAGE,
+                        ProjectRecordMapper.DOS_DATE_CADRAGE,
+                        ProjectRecordMapper.DOS_DATE_PGT,
+                        ProjectRecordMapper.DOS_DATE_DGT,
+                        ProjectRecordMapper.DOS_DATE_EXAMEN,
+                        ProjectRecordMapper.DOS_DATE_VALIDATION,
+                        ProjectRecordMapper.DOS_DATE_MISE_EN_LIGNE,
+                        ProjectRecordMapper.DOS_DATE_CLOTURE,
+                        PREV_DEBUT_CADRAGE,
+                        PREV_CADRAGE,
+                        PREV_PGT,
+                        PREV_DGT,
+                        PREV_EXAMEN,
+                        PREV_VALIDATION,
+                        PREV_MISE_EN_LIGNE,
+                        PREV_CLOTURE,
+                        SENSIBLE
                 )
                 .from(table(name("evamed", "dossier")))
                 .offset(offset)
