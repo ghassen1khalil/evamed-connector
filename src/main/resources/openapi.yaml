@@ -211,6 +211,105 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /global-indicators/projectsByTyplogy:
+    get:
+      summary: Count of projects by typology
+      description: Returns the number of projects grouped by typology.
+      operationId: getProjectsByTyplogy
+      tags:
+        - global-indicators
+      responses:
+        "200":
+          description: Map of typology identifiers to project counts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringIntegerMap'
+              example:
+                clinical: 12
+                epidemiological: 7
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /global-indicators/projectsByPhase:
+    get:
+      summary: Count of projects by phase
+      description: Returns the number of projects grouped by current phase.
+      operationId: getProjectsByPhase
+      tags:
+        - global-indicators
+      responses:
+        "200":
+          description: Map of project phases to counts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringIntegerMap'
+              example:
+                cadrage: 5
+                examen: 3
+                mise_en_ligne: 2
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /global-indicators/averageTimePerTyplogy:
+    get:
+      summary: Average time by typology
+      description: Returns the average processing time for projects by typology.
+      operationId: getAverageTimePerTyplogy
+      tags:
+        - global-indicators
+      responses:
+        "200":
+          description: Map of typology identifiers to average time values.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringIntegerMap'
+              example:
+                clinical: 180
+                epidemiological: 95
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /global-indicators/projectTypologyPerDomain:
+    get:
+      summary: Typology distribution per domain
+      description: Returns the number of projects by typology within each application domain.
+      operationId: getProjectTypologyPerDomain
+      tags:
+        - global-indicators
+      responses:
+        "200":
+          description: Map of application domains to typology counts.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/StringIntegerMap'
+              example:
+                pharmaceutical:
+                  clinical: 4
+                  epidemiological: 2
+                medical_device:
+                  clinical: 3
+                  epidemiological: 1
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     UserType:
@@ -223,6 +322,12 @@ components:
       x-enum-descriptions:
         - SBP Service Manager
         - SR Service Manager
+    StringIntegerMap:
+      type: object
+      description: Map of string keys to integer values.
+      additionalProperties:
+        type: integer
+        format: int32
     ProjectPhaseFilter:
       type: string
       description: Project phase.
