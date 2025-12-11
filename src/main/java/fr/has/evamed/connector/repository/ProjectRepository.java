@@ -2,29 +2,40 @@ package fr.has.evamed.connector.repository;
 
 import fr.has.evamed.connector.domain.ProjectDto;
 import fr.has.evamed.connector.mapper.ProjectRecordMapper;
+import fr.has.evamed.domain.entities.Tables;
+import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.jooq.impl.DSL.name;
 import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
 import static org.jooq.impl.DSL.selectCount;
 
 @Repository
+@Slf4j
 public class ProjectRepository {
 
     private final DSLContext context;
+
+    // Constants (good practices: no magic numbers/strings inline)
+    private static final int SECONDS_PER_DAY = 86_400;
+    private static final long SENSIBLE_USER_ID = 9_461L;
+    private static final short SENSIBLE_AUT_FLAG = 1;
+    private static final String DEFAULT_LABEL = "Aucun";
+    private static final String COL_DELAI_MOYEN = "delai_moyen";
 
     public ProjectRepository(DSLContext context) {
         this.context = context;
     }
 
     public List<ProjectDto> getProjects(Integer offset, Integer limit) {
-        // Shortcut fields
-        var DOS_ID_LONG = field(name("evamed", "dossier", "dos_id"), Long.class);
+        // Shortcut fields using generated jOOQ table
+        var DOS_ID_LONG = Tables.DOSSIER.DOS_ID;
 
         // Computed/planned date fields using DB functions
         var PREV_DEBUT_CADRAGE = field("pkg_dossier.f_get_date_pre_dcad({0})", LocalDate.class, DOS_ID_LONG).as("prev_debut_cadrage");
@@ -37,12 +48,12 @@ public class ProjectRepository {
         var PREV_CLOTURE = field("pkg_dossier.f_get_date_pre_clo({0})", LocalDate.class, DOS_ID_LONG).as("prev_cloture");
 
         // Subquery for sensible flag
-        var amp = table(name("evamed", "autre_membre_projet")).as("amp");
+        var AMP = Tables.AUTRE_MEMBRE_PROJET.as("amp");
         var SENSIBLE = selectCount()
-                .from(amp)
-                .where(field(name("amp", "utl_id"), Integer.class).eq(9461)
-                        .and(field(name("amp", "amp_aut"), Integer.class).eq(1))
-                        .and(field(name("amp", "dos_id"), Long.class).eq(DOS_ID_LONG)))
+                .from(AMP)
+                .where(AMP.UTL_ID.eq(DSL.inline(SENSIBLE_USER_ID))
+                        .and(AMP.AMP_AUT.eq(DSL.inline(SENSIBLE_AUT_FLAG)))
+                        .and(AMP.DOS_ID.eq(DOS_ID_LONG)))
                 .asField("sensible");
 
         var records = context
@@ -71,7 +82,7 @@ public class ProjectRepository {
                         PREV_CLOTURE,
                         SENSIBLE
                 )
-                .from(table(name("evamed", "dossier")))
+                .from(Tables.DOSSIER)
                 .offset(offset)
                 .limit(limit)
                 .fetch();
@@ -81,7 +92,7 @@ public class ProjectRepository {
     }
 
     public int countProjects() {
-        return context.fetchCount(table(name("evamed", "dossier")));
+        return context.fetchCount(Tables.DOSSIER);
     }
 
     public String getProjectType(String dosId) {
@@ -93,16 +104,72 @@ public class ProjectRepository {
         }
         if (id == null) return null;
 
-        var rtde = table(name("evamed", "ref_type_dossier_eval")).as("rtde");
-        var d = table(name("evamed", "dossier")).as("d");
+        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
+        var D = Tables.DOSSIER.as("d");
 
         return context
-                .select(field(name("rtde", "regroup"), String.class))
-                .from(rtde
-                        .join(d)
-                        .on(field(name("rtde", "tde_code")).eq(field(name("d", "tde_code")))))
-                .where(field(name("d", "dos_id"), Long.class).eq(id))
-                .fetchOne(0, String.class);
+                .select(RTDE.REGROUP)
+                .from(D.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE)))
+                .where(D.DOS_ID.eq(id))
+                .fetchOne(RTDE.REGROUP);
+    }
+
+    /**
+     * Délai moyen par typologie.
+     * Traduction jOOQ/SQL de la requête fournie. Retourne une Map où la clé est rtde.regroup
+     * et la valeur est le délai moyen (arrondi) en jours.
+     */
+    public Map<String, Integer> averageTimePerTypology() {
+        log.info("Requesting database for calculating average time per typology ...");
+        var D = Tables.DOSSIER.as("d");
+        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
+        var SD = Tables.SUSPENSION_DELAI.as("sd");
+
+        // extract(epoch from d.dos_date_cloture - d.dos_date_debut_cadrage)/86400
+        var mainDays = DSL.field(
+                "extract(epoch from {0} - {1}) / {2}",
+                Double.class,
+                D.DOS_DATE_CLOTURE, D.DOS_DATE_DEBUT_CADRAGE, DSL.inline(SECONDS_PER_DAY)
+        );
+
+        // coalesce((select sum(extract(epoch from sd.spd_date_de_fin - sd.spd_date_de_debut)/86400) from suspension_delai sd where sd.dos_id = d.dos_id), 0)
+        // Build this as a proper jOOQ subselect so the table renders correctly as "suspension_delai sd"
+        var suspDaysSubSelect = DSL
+                .select(
+                        DSL.sum(
+                                DSL.field(
+                                        "extract(epoch from {0} - {1}) / {2}",
+                                        Double.class,
+                                        SD.SPD_DATE_DE_FIN,
+                                        SD.SPD_DATE_DE_DEBUT,
+                                        DSL.inline(SECONDS_PER_DAY)
+                                )
+                        ).as("sum_days")
+                )
+                .from(SD)
+                .where(SD.DOS_ID.eq(D.DOS_ID));
+
+        var suspDays = DSL.coalesce(suspDaysSubSelect.asField(), DSL.inline(0d));
+
+        var expr = DSL.field("({0} - {1})", Double.class, mainDays, suspDays);
+
+        var delaiMoyen = DSL.round(DSL.avg(expr), 0).cast(Integer.class).as(COL_DELAI_MOYEN);
+
+        var result = context
+                .select(RTDE.REGROUP, delaiMoyen)
+                .from(D.leftJoin(RTDE).on(D.TDE_CODE.eq(RTDE.TDE_CODE)))
+                .groupBy(RTDE.REGROUP)
+                .fetch();
+
+        Map<String, Integer> map = new HashMap<>();
+        result.forEach(rec -> {
+            String key = rec.get(RTDE.REGROUP);
+            Integer value = rec.get(COL_DELAI_MOYEN, Integer.class);
+            if (value != null) {
+                map.put(key != null ? key : DEFAULT_LABEL, value);
+            }
+        });
+        return map;
     }
 
 
