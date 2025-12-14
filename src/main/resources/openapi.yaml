@@ -190,6 +190,13 @@ paths:
       operationId: getManagementAssistants
       tags:
         - Projects
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: List of management assistants.
