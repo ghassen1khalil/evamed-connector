@@ -26,6 +26,7 @@ public class ProjectService {
         try {
             int off = offset != null ? offset : 0;
             int lim = limit != null ? limit : 20;
+            log.info("Fetching projects with offset={} and limit={}", off, lim);
             List<ProjectDto> projects = projectRepository.getProjects(off, lim, filters);
             int total = projectRepository.countProjects(filters);
             return new PaginatedProjectResponseDto(projects, lim, off, total);
@@ -35,10 +36,6 @@ public class ProjectService {
         return null;
     }
 
-    public ProjectDto getProjectById(String projectId) {
-        //TODO Implement this method
-        return null;
-    }
 
     public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
         return projectRepository.getProjectManagers(userType);

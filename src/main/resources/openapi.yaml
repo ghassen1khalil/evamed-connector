@@ -67,7 +67,7 @@ paths:
           in: query
           required: false
           description: Filter by project finished flag.
-          schema: 
+          schema:
             type: boolean
         - name: phase
           in: query
@@ -230,46 +230,6 @@ paths:
                   type: string
         "400":
           description: Invalid query parameters supplied.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "500":
-          description: Unexpected server error.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /projects/{projectId}:
-    get:
-      summary: Get project details
-      description: Retrieves a single project by its identifier.
-      operationId: getProjectById
-      tags:
-        - Projects
-      parameters:
-        - name: projectId
-          in: path
-          required: true
-          description: Unique project identifier.
-          schema:
-            type: string
-            minLength: 1
-      responses:
-        "200":
-          description: Project detail.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-        "400":
-          description: Invalid project identifier supplied.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "404":
-          description: Project not found.
           content:
             application/json:
               schema:

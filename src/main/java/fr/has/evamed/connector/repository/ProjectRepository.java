@@ -374,75 +374,17 @@ public class ProjectRepository {
 
     public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
         log.info("Requesting database for project managers with userType {} ...", userType);
-        var CP = Tables.CHEF_PROJET.as("cp");
-        var D = Tables.DOSSIER.as("d");
-        var U = Tables.UTILISATEUR.as("u");
-
-        var records = context
-                .selectDistinct(U.UTL_ID, U.UTL_NOM, U.UTL_PRENOM)
-                .from(CP
-                        .join(D).on(CP.DOS_ID.eq(D.DOS_ID))
-                        .join(U).on(CP.UTL_ID.eq(U.UTL_ID)))
-                .where(buildUserTypeCondition(userType, D.TDOS_CODE, CP.CPJ_EVALUE, U.SRV_CODE))
-                .orderBy(U.UTL_NOM.asc(), U.UTL_PRENOM.asc())
-                .fetch();
-
-        List<ProjectManagerDto> managers = new ArrayList<>();
-        records.forEach(r -> {
-            ProjectManagerDto dto = new ProjectManagerDto();
-            var id = r.get(U.UTL_ID);
-            if (id != null) dto.setId(String.valueOf(id));
-            var firstName = r.get(U.UTL_PRENOM);
-            if (firstName != null) dto.setFirstName(firstName);
-            var lastName = r.get(U.UTL_NOM);
-            if (lastName != null) dto.setLastName(lastName);
-            managers.add(dto);
-        });
-        return managers;
+        return null;
     }
 
     public List<ManagementAssistantDto> getManagementAssistants() {
         log.info("Requesting database for management assistants ...");
-        var AMP = Tables.AUTRE_MEMBRE_PROJET.as("amp");
-        var U = Tables.UTILISATEUR.as("u");
-
-        var records = context
-                .selectDistinct(U.UTL_ID, U.UTL_NOM, U.UTL_PRENOM)
-                .from(U.join(AMP).on(U.UTL_ID.eq(AMP.UTL_ID)))
-                .where(AMP.AMP_AG.eq(DSL.inline(FLAG_TRUE)))
-                .orderBy(U.UTL_NOM.asc(), U.UTL_PRENOM.asc())
-                .fetch();
-
-        List<ManagementAssistantDto> assistants = new ArrayList<>();
-        records.forEach(r -> {
-            ManagementAssistantDto dto = new ManagementAssistantDto();
-            var id = r.get(U.UTL_ID);
-            if (id != null) dto.setId(String.valueOf(id));
-            var firstName = r.get(U.UTL_PRENOM);
-            if (firstName != null) dto.setFirstName(firstName);
-            var lastName = r.get(U.UTL_NOM);
-            if (lastName != null) dto.setLastName(lastName);
-            assistants.add(dto);
-        });
-        return assistants;
+        return null;
     }
 
     public List<String> getTypologies(UserTypeDto userType) {
         log.info("Requesting database for typologies with userType {} ...", userType);
-        var CP = Tables.CHEF_PROJET.as("cp");
-        var D = Tables.DOSSIER.as("d");
-        var U = Tables.UTILISATEUR.as("u");
-        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
-
-        return context
-                .selectDistinct(RTDE.REGROUP)
-                .from(D
-                        .join(CP).on(D.DOS_ID.eq(CP.DOS_ID))
-                        .join(U).on(CP.UTL_ID.eq(U.UTL_ID))
-                        .join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE)))
-                .where(buildUserTypeCondition(userType, D.TDOS_CODE, CP.CPJ_EVALUE, U.SRV_CODE))
-                .orderBy(RTDE.REGROUP.asc())
-                .fetch(RTDE.REGROUP);
+        return null;
     }
 
     // -------------------- Helpers --------------------
@@ -451,22 +393,20 @@ public class ProjectRepository {
                                              Field<Short> cpjEvalue,
                                              Field<String> srvCode) {
         if (userType == null) {
-            throw new IllegalArgumentException("Le type d'utilisateur est obligatoire");
+            throw new IllegalArgumentException("User type must be provided");
         }
         Condition base = cpjEvalue.eq(DSL.inline(FLAG_TRUE));
-        switch (userType) {
-            case SBP_SERVICE_MANAGER:
-                return base
-                        .and(tdosCode.in("RECO", "APP"))
-                        .and(srvCode.eq(SBP_SERVICE_CODE));
-            case SR_SERVICE_MANAGER:
-                return base
-                        .and(tdosCode.eq("SMS"))
-                        .and(srvCode.eq(SR_SERVICE_CODE));
-            default:
+        return switch (userType) {
+            case SBP_SERVICE_MANAGER -> base
+                    .and(tdosCode.in("RECO", "APP"))
+                    .and(srvCode.eq(SBP_SERVICE_CODE));
+            case SR_SERVICE_MANAGER -> base
+                    .and(tdosCode.eq("SMS"))
+                    .and(srvCode.eq(SR_SERVICE_CODE));
+            default ->
                 // Par défaut, appliquer uniquement le flag évalue
-                return base;
-        }
+                    base;
+        };
     }
 
     private void enrichProjects(List<ProjectDto> items) {
