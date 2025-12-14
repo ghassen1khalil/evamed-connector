@@ -41,8 +41,8 @@ public class ProjectService {
         return projectRepository.getProjectManagers(userType);
     }
 
-    public List<ManagementAssistantDto> getManagementAssistants() {
-        return projectRepository.getManagementAssistants();
+    public List<ManagementAssistantDto> getManagementAssistants(UserTypeDto userType) {
+        return projectRepository.getManagementAssistants(userType);
     }
 
     public List<String> getTypologies(UserTypeDto userType) {

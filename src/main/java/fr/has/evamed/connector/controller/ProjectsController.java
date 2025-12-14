@@ -46,9 +46,9 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<List<ManagementAssistantDto>> getManagementAssistants() {
+    public ResponseEntity<List<ManagementAssistantDto>> getManagementAssistants(UserTypeDto userType) {
         log.info("Projects Api - Getting management assistants");
-        return ResponseEntity.ok(projectService.getManagementAssistants());
+        return ResponseEntity.ok(projectService.getManagementAssistants(userType));
     }
 
     @Override

@@ -377,7 +377,7 @@ public class ProjectRepository {
         return null;
     }
 
-    public List<ManagementAssistantDto> getManagementAssistants() {
+    public List<ManagementAssistantDto> getManagementAssistants(UserTypeDto userType) {
         log.info("Requesting database for management assistants ...");
         return null;
     }
