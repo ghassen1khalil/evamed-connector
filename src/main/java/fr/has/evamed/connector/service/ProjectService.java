@@ -2,6 +2,9 @@ package fr.has.evamed.connector.service;
 
 import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
 import fr.has.evamed.connector.domain.ProjectDto;
+import fr.has.evamed.connector.domain.ProjectManagerDto;
+import fr.has.evamed.connector.domain.ManagementAssistantDto;
+import fr.has.evamed.connector.domain.UserTypeDto;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.repository.ProjectRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,5 +38,17 @@ public class ProjectService {
     public ProjectDto getProjectById(String projectId) {
         //TODO Implement this method
         return null;
+    }
+
+    public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
+        return projectRepository.getProjectManagers(userType);
+    }
+
+    public List<ManagementAssistantDto> getManagementAssistants(UserTypeDto userType) {
+        return projectRepository.getManagementAssistants(userType);
+    }
+
+    public List<String> getTypologies(UserTypeDto userType) {
+        return projectRepository.getTypologies(userType);
     }
 }

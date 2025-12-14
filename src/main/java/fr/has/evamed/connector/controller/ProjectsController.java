@@ -22,11 +22,6 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<ProjectDto> getProjectById(String projectId) {
-        return ProjectsApi.super.getProjectById(projectId);
-    }
-
-    @Override
     public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType, Integer offset, Integer limit, List<String> projectManagerId, List<String> managementAssistantId, List<String> projectType, Boolean isSensitive, Boolean isProjectFinished, ProjectPhaseFilterDto phase, PeriodFilterDto period) {
         log.info("Projects Api - Getting projects with filters: userType={}, projectManagerId={}, managementAssistantId={}, projectType={}, isSensitive={}, isProjectFinished={}, phase={}, period={}", userType, projectManagerId, managementAssistantId, projectType, isSensitive, isProjectFinished, phase, period);
         ProjectFilters filters = ProjectFilters.builder()
@@ -42,5 +37,23 @@ public class ProjectsController implements ProjectsApi {
                 .period(period)
                 .build();
         return ResponseEntity.ok(projectService.getProjects(offset, limit, filters));
+    }
+
+    @Override
+    public ResponseEntity<List<ProjectManagerDto>> getProjectManagers(UserTypeDto userType) {
+        log.info("Projects Api - Getting project managers with userType={}", userType);
+        return ResponseEntity.ok(projectService.getProjectManagers(userType));
+    }
+
+    @Override
+    public ResponseEntity<List<ManagementAssistantDto>> getManagementAssistants(UserTypeDto userType) {
+        log.info("Projects Api - Getting management assistants with userType={}", userType);
+        return ResponseEntity.ok(projectService.getManagementAssistants(userType));
+    }
+
+    @Override
+    public ResponseEntity<List<String>> getTypologies(UserTypeDto userType) {
+        log.info("Projects Api - Getting typologies with userType={}", userType);
+        return ResponseEntity.ok(projectService.getTypologies(userType));
     }
 }

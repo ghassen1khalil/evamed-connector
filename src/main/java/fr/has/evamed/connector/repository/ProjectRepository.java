@@ -46,6 +46,10 @@ public class ProjectRepository {
     private static final String COL_DELAI_MOYEN = "delai_moyen";
     private static final String SBP_SERVICE_CODE = "DAQSS_SBPP";
     private static final String SR_SERVICE_CODE = "DIQASM_SR";
+    private static final String SBP_MANAGER_PROFILE_CODE = "50";
+    private static final String SR_MANAGER_PROFILE_CODE = "1004";
+    private static final String SBP_ASSISTANT_PROFILE_CODE = "55";
+    private static final String SR_ASSISTANT_PROFILE_CODE = "1024";
     private static final DateTimeFormatter DDMMYYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ProjectRepository(DSLContext context) {
@@ -370,6 +374,108 @@ public class ProjectRepository {
             }
         });
         return map;
+    }
+
+    public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
+        log.info("Requesting database for project managers with userType {} ...", userType);
+        var U = Tables.UTILISATEUR.as("u");
+
+        Condition condition = U.UTL_ARCHIVE.eq((short) 0);
+        if (UserTypeDto.SBP_SERVICE_MANAGER.equals(userType)) {
+            condition = condition
+                    .and(U.PRF_CODE.eq(SBP_MANAGER_PROFILE_CODE))
+                    .and(U.SRV_CODE.eq(SBP_SERVICE_CODE));
+        } else if (UserTypeDto.SR_SERVICE_MANAGER.equals(userType)) {
+            condition = condition
+                    .and(U.PRF_CODE.eq(SR_MANAGER_PROFILE_CODE))
+                    .and(U.SRV_CODE.eq(SR_SERVICE_CODE));
+        } else {
+            throw new IllegalArgumentException("Unsupported user type for project managers: " + userType);
+        }
+
+        var records = context
+                .selectDistinct(U.UTL_ID, U.UTL_NOM, U.UTL_PRENOM)
+                .from(U)
+                .where(condition)
+                .orderBy(U.UTL_NOM.asc(), U.UTL_PRENOM.asc())
+                .fetch();
+
+        List<ProjectManagerDto> managers = new ArrayList<>();
+        records.forEach(r -> {
+            ProjectManagerDto dto = new ProjectManagerDto();
+            var id = r.get(U.UTL_ID);
+            if (id != null) dto.setId(String.valueOf(id));
+            var firstName = r.get(U.UTL_PRENOM);
+            if (firstName != null) dto.setFirstName(firstName);
+            var lastName = r.get(U.UTL_NOM);
+            if (lastName != null) dto.setLastName(lastName);
+            managers.add(dto);
+        });
+        return managers;
+    }
+
+    public List<ManagementAssistantDto> getManagementAssistants(UserTypeDto userType) {
+        log.info("Requesting database for management assistants with userType {} ...", userType);
+        var U = Tables.UTILISATEUR.as("u");
+
+        Condition condition = U.UTL_ARCHIVE.eq((short) 0);
+        if (UserTypeDto.SBP_SERVICE_MANAGER.equals(userType)) {
+            condition = condition
+                    .and(U.PRF_CODE.eq(SBP_ASSISTANT_PROFILE_CODE))
+                    .and(U.SRV_CODE.eq(SBP_SERVICE_CODE));
+        } else if (UserTypeDto.SR_SERVICE_MANAGER.equals(userType)) {
+            condition = condition
+                    .and(U.PRF_CODE.eq(SR_ASSISTANT_PROFILE_CODE))
+                    .and(U.SRV_CODE.eq(SR_SERVICE_CODE));
+        } else {
+            throw new IllegalArgumentException("Unsupported user type for management assistants: " + userType);
+        }
+
+        var records = context
+                .selectDistinct(U.UTL_ID, U.UTL_NOM, U.UTL_PRENOM)
+                .from(U)
+                .where(condition)
+                .orderBy(U.UTL_NOM.asc(), U.UTL_PRENOM.asc())
+                .fetch();
+
+        List<ManagementAssistantDto> assistants = new ArrayList<>();
+        records.forEach(r -> {
+            ManagementAssistantDto dto = new ManagementAssistantDto();
+            var id = r.get(U.UTL_ID);
+            if (id != null) dto.setId(String.valueOf(id));
+            var firstName = r.get(U.UTL_PRENOM);
+            if (firstName != null) dto.setFirstName(firstName);
+            var lastName = r.get(U.UTL_NOM);
+            if (lastName != null) dto.setLastName(lastName);
+            assistants.add(dto);
+        });
+        return assistants;
+    }
+
+    public List<String> getTypologies(UserTypeDto userType) {
+        log.info("Requesting database for typologies with userType {} ...", userType);
+        var D = Tables.DOSSIER.as("d");
+        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
+
+        Condition condition = DSL.noCondition();
+        if (UserTypeDto.SBP_SERVICE_MANAGER.equals(userType)) {
+            condition = condition.and(D.TDOS_CODE.in("RECO", "APP"));
+        } else if (UserTypeDto.SR_SERVICE_MANAGER.equals(userType)) {
+            condition = condition.and(D.TDOS_CODE.eq("SMS"));
+        } else {
+            throw new IllegalArgumentException("Unsupported user type for typologies: " + userType);
+        }
+
+        condition = condition
+                .and(RTDE.REGROUP.isNotNull())
+                .and(D.DOS_DATE_SUP_LOG.isNull());
+
+        return context
+                .selectDistinct(RTDE.REGROUP)
+                .from(RTDE.join(D).on(RTDE.TDE_CODE.eq(D.TDE_CODE)))
+                .where(condition)
+                .orderBy(RTDE.REGROUP.asc())
+                .fetch(RTDE.REGROUP);
     }
 
     // -------------------- Helpers --------------------
