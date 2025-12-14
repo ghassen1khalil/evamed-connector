@@ -43,4 +43,22 @@ public class ProjectsController implements ProjectsApi {
                 .build();
         return ResponseEntity.ok(projectService.getProjects(offset, limit, filters));
     }
+
+    @Override
+    public ResponseEntity<List<ProjectManagerDto>> getProjectManagers(UserTypeDto userType) {
+        log.info("Projects Api - Getting project managers with userType={}", userType);
+        return ResponseEntity.ok(projectService.getProjectManagers(userType));
+    }
+
+    @Override
+    public ResponseEntity<List<ManagementAssistantDto>> getManagementAssistants(UserTypeDto userType) {
+        log.info("Projects Api - Getting management assistants with userType={}", userType);
+        return ResponseEntity.ok(projectService.getManagementAssistants(userType));
+    }
+
+    @Override
+    public ResponseEntity<List<String>> getTypologies(UserTypeDto userType) {
+        log.info("Projects Api - Getting typologies with userType={}", userType);
+        return ResponseEntity.ok(projectService.getTypologies(userType));
+    }
 }
