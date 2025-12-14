@@ -380,7 +380,7 @@ public class ProjectRepository {
         log.info("Requesting database for project managers with userType {} ...", userType);
         var U = Tables.UTILISATEUR.as("u");
 
-        Condition condition = U.UTL_ARCHIVE.eq(DSL.inline(0));
+        Condition condition = U.UTL_ARCHIVE.eq((short) 0);
         if (UserTypeDto.SBP_SERVICE_MANAGER.equals(userType)) {
             condition = condition
                     .and(U.PRF_CODE.eq(SBP_MANAGER_PROFILE_CODE))
@@ -418,7 +418,7 @@ public class ProjectRepository {
         log.info("Requesting database for management assistants with userType {} ...", userType);
         var U = Tables.UTILISATEUR.as("u");
 
-        Condition condition = U.UTL_ARCHIVE.eq(DSL.inline(0));
+        Condition condition = U.UTL_ARCHIVE.eq((short) 0);
         if (UserTypeDto.SBP_SERVICE_MANAGER.equals(userType)) {
             condition = condition
                     .and(U.PRF_CODE.eq(SBP_ASSISTANT_PROFILE_CODE))
