@@ -67,7 +67,7 @@ paths:
           in: query
           required: false
           description: Filter by project finished flag.
-          schema: 
+          schema:
             type: boolean
         - name: phase
           in: query
@@ -148,36 +148,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /projects/{projectId}:
+  /projects/managers:
     get:
-      summary: Get project details
-      description: Retrieves a single project by its identifier.
-      operationId: getProjectById
+      summary: List project managers
+      description: Returns project managers filtered by user type.
+      operationId: getProjectManagers
       tags:
         - Projects
       parameters:
-        - name: projectId
-          in: path
+        - name: userType
+          in: query
           required: true
-          description: Unique project identifier.
+          description: Type of user issuing the request.
           schema:
-            type: string
-            minLength: 1
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
-          description: Project detail.
+          description: List of project managers.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectManager'
         "400":
-          description: Invalid project identifier supplied.
+          description: Invalid query parameters supplied.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        "404":
-          description: Project not found.
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/management-assistants:
+    get:
+      summary: List management assistants
+      description: Returns all management assistants.
+      operationId: getManagementAssistants
+      tags:
+        - Projects
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request.
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        "200":
+          description: List of management assistants.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ManagementAssistant'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/typologies:
+    get:
+      summary: List project typologies
+      description: Returns available typologies filtered by user type.
+      operationId: getTypologies
+      tags:
+        - Projects
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request.
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        "200":
+          description: List of typologies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "400":
+          description: Invalid query parameters supplied.
           content:
             application/json:
               schema:

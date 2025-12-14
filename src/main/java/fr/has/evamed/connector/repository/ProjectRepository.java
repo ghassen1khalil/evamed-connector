@@ -372,28 +372,41 @@ public class ProjectRepository {
         return map;
     }
 
+    public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
+        log.info("Requesting database for project managers with userType {} ...", userType);
+        return null;
+    }
+
+    public List<ManagementAssistantDto> getManagementAssistants(UserTypeDto userType) {
+        log.info("Requesting database for management assistants ...");
+        return null;
+    }
+
+    public List<String> getTypologies(UserTypeDto userType) {
+        log.info("Requesting database for typologies with userType {} ...", userType);
+        return null;
+    }
+
     // -------------------- Helpers --------------------
     private Condition buildUserTypeCondition(UserTypeDto userType,
                                              Field<String> tdosCode,
                                              Field<Short> cpjEvalue,
                                              Field<String> srvCode) {
         if (userType == null) {
-            throw new IllegalArgumentException("Le type d'utilisateur est obligatoire");
+            throw new IllegalArgumentException("User type must be provided");
         }
         Condition base = cpjEvalue.eq(DSL.inline(FLAG_TRUE));
-        switch (userType) {
-            case SBP_SERVICE_MANAGER:
-                return base
-                        .and(tdosCode.in("RECO", "APP"))
-                        .and(srvCode.eq(SBP_SERVICE_CODE));
-            case SR_SERVICE_MANAGER:
-                return base
-                        .and(tdosCode.eq("SMS"))
-                        .and(srvCode.eq(SR_SERVICE_CODE));
-            default:
+        return switch (userType) {
+            case SBP_SERVICE_MANAGER -> base
+                    .and(tdosCode.in("RECO", "APP"))
+                    .and(srvCode.eq(SBP_SERVICE_CODE));
+            case SR_SERVICE_MANAGER -> base
+                    .and(tdosCode.eq("SMS"))
+                    .and(srvCode.eq(SR_SERVICE_CODE));
+            default ->
                 // Par défaut, appliquer uniquement le flag évalue
-                return base;
-        }
+                    base;
+        };
     }
 
     private void enrichProjects(List<ProjectDto> items) {
