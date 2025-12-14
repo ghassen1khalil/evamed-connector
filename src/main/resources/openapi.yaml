@@ -96,30 +96,6 @@ paths:
           explode: true
           schema:
             $ref: '#/components/schemas/PeriodFilter'
-        - name: sortBy
-          in: query
-          required: false
-          description: Field used to sort results. Supported values are number, title, creationAt, endAt, type, and applicationDomain.
-          schema:
-            type: string
-            enum:
-              - number
-              - title
-              - creationAt
-              - endAt
-              - type
-              - applicationDomain
-            default: creationAt
-        - name: sortDirection
-          in: query
-          required: false
-          description: Sort direction applied to the sortBy field.
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: desc
       responses:
         "200":
           description: Paginated list of projects.
@@ -217,7 +193,7 @@ paths:
       description: Returns the number of projects grouped by typology.
       operationId: getProjectsByTyplogy
       tags:
-        - global-indicators
+        - Global-Indicators
       responses:
         "200":
           description: Map of typology identifiers to project counts.
@@ -240,7 +216,7 @@ paths:
       description: Returns the number of projects grouped by current phase.
       operationId: getProjectsByPhase
       tags:
-        - global-indicators
+        - Global-Indicators
       responses:
         "200":
           description: Map of project phases to counts.
@@ -264,7 +240,7 @@ paths:
       description: Returns the average processing time for projects by typology.
       operationId: getAverageTimePerTyplogy
       tags:
-        - global-indicators
+        - Global-Indicators
       responses:
         "200":
           description: Map of typology identifiers to average time values.
@@ -287,7 +263,7 @@ paths:
       description: Returns the number of projects by typology within each application domain.
       operationId: getProjectTypologyPerDomain
       tags:
-        - global-indicators
+        - Global-Indicators
       responses:
         "200":
           description: Map of application domains to typology counts.
@@ -332,15 +308,15 @@ components:
       type: string
       description: Project phase.
       enum:
-        - saisine
-        - debut_cadrage
-        - cadrage
-        - pgt
-        - dgt
-        - examen
-        - validation
-        - mise_en_ligne
-        - cloture
+        - SAISINE
+        - DEBUT_CADRAGE
+        - CADRAGE
+        - PGT
+        - DGT
+        - EXAMEN
+        - VALIDATION
+        - MISE_EN_LIGNE
+        - CLOTURE
     PeriodFilter:
       type: object
       description: Objet période utilisé comme filtre de recherche, avec une date de début et une date de fin.
