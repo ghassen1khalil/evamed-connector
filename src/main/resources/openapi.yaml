@@ -148,6 +148,98 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /projects/managers:
+    get:
+      summary: List project managers
+      description: Returns project managers filtered by user type.
+      operationId: getProjectManagers
+      tags:
+        - Projects
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request.
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        "200":
+          description: List of project managers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectManager'
+        "400":
+          description: Invalid query parameters supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/management-assistants:
+    get:
+      summary: List management assistants
+      description: Returns all management assistants.
+      operationId: getManagementAssistants
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: List of management assistants.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ManagementAssistant'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects/typologies:
+    get:
+      summary: List project typologies
+      description: Returns available typologies filtered by user type.
+      operationId: getTypologies
+      tags:
+        - Projects
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request.
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        "200":
+          description: List of typologies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "400":
+          description: Invalid query parameters supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /projects/{projectId}:
     get:
       summary: Get project details
