@@ -113,7 +113,8 @@ paths:
                         type: "clinical"
                         title: "Study on treatment efficacy"
                         isSensitive: false
-                        applicationDomain: "pharmaceutical"
+                        applicationDomains:
+                          - "pharmaceutical"
                         phases:
                           - beginDate: "2024-01-15"
                             endDate: "2024-06-15"
@@ -369,7 +370,7 @@ components:
         - type
         - title
         - isSensitive
-        - applicationDomain
+        - applicationDomains
         - phases
         - projectManagers
         - managementAssistant
@@ -394,9 +395,11 @@ components:
         isSensitive:
           type: boolean
           description: Indicates whether the project handles sensitive data.
-        applicationDomain:
-          type: string
-          description: Application domain of the project.
+        applicationDomains:
+          type: array
+          items:
+            type: string
+          description: Application domains of the project.
         projectManagers:
           type: object
           description: Grouped lists of project managers.

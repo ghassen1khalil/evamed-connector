@@ -63,8 +63,6 @@ public class ProjectRecordMapper implements RecordMapper<Record, ProjectDto> {
         String typeCode = record.get(TDOS_CODE);
         if (typeCode != null) dto.setTypeCode(typeCode);
 
-        String applicationDomain = record.get(PLA_COM);
-        if (applicationDomain != null) dto.setApplicationDomain(applicationDomain);
 
         // Actual dates
         LocalDate referral = record.get(DOS_DATE_SAISINE);
