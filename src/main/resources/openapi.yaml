@@ -7,6 +7,11 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local development server
+tags:
+  - name: Projects
+    description: Endpoints related to projects listing and reference data.
+  - name: Global-Indicators
+    description: Aggregated indicators and statistics.
 paths:
   /projects:
     get:
@@ -247,13 +252,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/projectsByTyplogy:
+  /global-indicators/projectsByTypology:
     get:
       summary: Count of projects by typology
       description: Returns the number of projects grouped by typology.
-      operationId: getProjectsByTyplogy
+      operationId: getProjectsByTypology
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of typology identifiers to project counts.
@@ -277,6 +289,13 @@ paths:
       operationId: getProjectsByPhase
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of project phases to counts.
@@ -294,13 +313,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/averageTimePerTyplogy:
+  /global-indicators/averageTimePerTypology:
     get:
       summary: Average time by typology
       description: Returns the average processing time for projects by typology.
-      operationId: getAverageTimePerTyplogy
+      operationId: getAverageTimePerTypology
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of typology identifiers to average time values.
@@ -324,6 +350,13 @@ paths:
       operationId: getProjectTypologyPerDomain
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of application domains to typology counts.

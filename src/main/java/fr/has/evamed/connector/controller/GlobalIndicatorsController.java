@@ -1,5 +1,6 @@
 package fr.has.evamed.connector.controller;
 
+import fr.has.evamed.connector.domain.UserTypeDto;
 import fr.has.evamed.connector.rest.api.GlobalIndicatorsApi;
 import fr.has.evamed.connector.service.GlobalIndicatorsService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,26 +20,26 @@ public class GlobalIndicatorsController implements GlobalIndicatorsApi {
     }
 
     @Override
-    public ResponseEntity<Map<String, Integer>> getAverageTimePerTyplogy() {
-        log.info("Global Indicators Api - Getting average time per typology");
+    public ResponseEntity<Map<String, Integer>> getAverageTimePerTypology(UserTypeDto userType) {
+        log.info("Global Indicators Api - Getting average time per typology with userType={}", userType);
         return ResponseEntity.ok(this.globalIndicatorsService.getGlobalIndicators());
     }
 
     @Override
-    public ResponseEntity<Map<String, Map<String, Integer>>> getProjectTypologyPerDomain() {
-        log.info("Global Indicators Api - Getting project typology per domain");
-        return GlobalIndicatorsApi.super.getProjectTypologyPerDomain();
+    public ResponseEntity<Map<String, Map<String, Integer>>> getProjectTypologyPerDomain(UserTypeDto userType) {
+        log.info("Global Indicators Api - Getting project typology per domain with userType={}", userType);
+        return GlobalIndicatorsApi.super.getProjectTypologyPerDomain(userType);
     }
 
     @Override
-    public ResponseEntity<Map<String, Integer>> getProjectsByPhase() {
-        log.info("Global Indicators Api - Getting projects by phase");
-        return GlobalIndicatorsApi.super.getProjectsByPhase();
+    public ResponseEntity<Map<String, Integer>> getProjectsByPhase(UserTypeDto userType) {
+        log.info("Global Indicators Api - Getting projects by phase with userType={}", userType);
+        return GlobalIndicatorsApi.super.getProjectsByPhase(userType);
     }
 
     @Override
-    public ResponseEntity<Map<String, Integer>> getProjectsByTyplogy() {
-        log.info("Global Indicators Api - Getting projects by typology");
-        return GlobalIndicatorsApi.super.getProjectsByTyplogy();
+    public ResponseEntity<Map<String, Integer>> getProjectsByTypology(UserTypeDto userType) {
+        log.info("Global Indicators Api - Getting projects by typology with userType={}", userType);
+        return GlobalIndicatorsApi.super.getProjectsByTypology(userType);
     }
 }
