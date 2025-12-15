@@ -4,6 +4,8 @@ import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,14 +14,11 @@ import java.util.List;
 
 
 @RestController
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectsController implements ProjectsApi {
 
-    private final ProjectService projectService;
-
-    public ProjectsController(ProjectService projectService) {
-        this.projectService = projectService;
-    }
+    @NonNull private final ProjectService projectService;
 
     @Override
     public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType, Integer offset, Integer limit, List<String> projectManagerId, List<String> managementAssistantId, List<String> projectType, Boolean isSensitive, Boolean isProjectFinished, ProjectPhaseFilterDto phase, PeriodFilterDto period) {

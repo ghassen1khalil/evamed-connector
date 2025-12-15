@@ -1,22 +1,40 @@
 package fr.has.evamed.connector.service;
 
-import fr.has.evamed.connector.repository.ProjectRepository;
+import fr.has.evamed.connector.domain.TypologyPerDomainGlobalIndicatorResponseDto;
+import fr.has.evamed.connector.domain.UserTypeDto;
+import fr.has.evamed.connector.repository.GlobalIndicatorsRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalIndicatorsService {
 
-    private final ProjectRepository projectRepository;
+    @NonNull private final GlobalIndicatorsRepository globalIndicatorsRepository;
 
-    public GlobalIndicatorsService(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
+    public Map<String, Integer> getProjectsByTypology(UserTypeDto userType) {
+        return this.globalIndicatorsRepository.getProjectsByTypology(userType);
     }
 
-    public Map<String, Integer> getGlobalIndicators() {
-        return this.projectRepository.averageTimePerTypology();
+    public Map<String, Integer> getProjectsByPhase(UserTypeDto userType) {
+        return this.globalIndicatorsRepository.getProjectsByPhase(userType);
+    }
+
+    public Map<String, Integer> getAverageTimePerTypology(UserTypeDto userType) {
+        return this.globalIndicatorsRepository.getAverageTimePerTypology(userType);
+    }
+
+    public List<TypologyPerDomainGlobalIndicatorResponseDto> getProjectTypologyPerDomain(UserTypeDto userType) {
+        return this.globalIndicatorsRepository.getProjectTypologyPerDomain(userType);
+    }
+
+    public String getWorkingGroupForCurrentYear(UserTypeDto userType) {
+        return this.globalIndicatorsRepository.getWorkingGroupForCurrentYear(userType);
     }
 }

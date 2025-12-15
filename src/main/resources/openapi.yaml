@@ -252,7 +252,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/projectsByTypology:
+  /global-indicators/projects-by-typology:
     get:
       summary: Count of projects by typology
       description: Returns the number of projects grouped by typology.
@@ -282,7 +282,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/projectsByPhase:
+  /global-indicators/projects-by-phase:
     get:
       summary: Count of projects by phase
       description: Returns the number of projects grouped by current phase.
@@ -313,7 +313,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/averageTimePerTypology:
+  /global-indicators/average-time-per-typology:
     get:
       summary: Average time by typology
       description: Returns the average processing time for projects by typology.
@@ -343,7 +343,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/workingGroupForCurrentYear:
+  /global-indicators/working-group-for-current-year:
     get:
       summary: Working group for the current year
       description: Returns the working group identifier for the current year.
@@ -371,7 +371,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/projectTypologyPerDomain:
+  /global-indicators/project-typology-per-domain:
     get:
       summary: Typology distribution per domain
       description: Returns the number of projects by typology within each application domain.
@@ -387,13 +387,14 @@ paths:
             $ref: '#/components/schemas/UserType'
       responses:
         "200":
-          description: Map of application domains to typology counts.
+          description: Number of projects by typology within each application domain.
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
-                  $ref: '#/components/schemas/StringIntegerMap'
+                type: array
+                description: List of typology distribution per domain.
+                items:
+                  $ref: '#/components/schemas/TypologyPerDomainGlobalIndicatorResponse'
               example:
                 pharmaceutical:
                   clinical: 4
@@ -690,6 +691,23 @@ components:
         comment:
           type: object
           description: Comment associated with the suspension.
+    TypologyPerDomainGlobalIndicatorResponse:
+      type: object
+      description: Response envelope for global indicators based on project typology.
+      required:
+        - domainLabel
+        - typology
+        - count
+      properties:
+        domainLabel:
+          type: string
+          description: Application domain label.
+        typology:
+          type: string
+          description: Project typology.
+        count:
+          type: integer
+          description: Number of projects with the given typology in the given domain.
     ErrorResponse:
       type: object
       description: Standard error envelope returned by the API.

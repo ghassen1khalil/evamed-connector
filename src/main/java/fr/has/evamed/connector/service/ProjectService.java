@@ -7,20 +7,19 @@ import fr.has.evamed.connector.domain.ManagementAssistantDto;
 import fr.has.evamed.connector.domain.UserTypeDto;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.repository.ProjectRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectService {
 
-    private final ProjectRepository projectRepository;
-
-    public ProjectService(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
-    }
+    @NonNull private final ProjectRepository projectRepository;
 
     public PaginatedProjectResponseDto getProjects(Integer offset, Integer limit, ProjectFilters filters) {
         try {
@@ -32,11 +31,6 @@ public class ProjectService {
         } catch (Exception e) { //TODO Better exception handling
             log.error(e.getMessage());
         }
-        return null;
-    }
-
-    public ProjectDto getProjectById(String projectId) {
-        //TODO Implement this method
         return null;
     }
 

@@ -1,60 +1,37 @@
 package fr.has.evamed.connector.repository;
 
-import fr.has.evamed.connector.domain.ProjectDto;
-import fr.has.evamed.connector.domain.CommissionSessionDto;
-import fr.has.evamed.connector.domain.GtGlMeetingDto;
-import fr.has.evamed.connector.domain.ManagementAssistantDto;
-import fr.has.evamed.connector.domain.ProjectManagerDto;
-import fr.has.evamed.connector.domain.ProjectProjectManagersDto;
-import fr.has.evamed.connector.domain.SuspensionDto;
-import fr.has.evamed.connector.domain.ProjectPhaseFilterDto;
-import fr.has.evamed.connector.domain.UserTypeDto;
+import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.mapper.ProjectRecordMapper;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.domain.entities.Tables;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.DSLContext;
 import org.jooq.Condition;
+import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static fr.has.evamed.connector.utils.DatabaseConstants.*;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectCount;
 
 @Repository
+@RequiredArgsConstructor
 @Slf4j
 public class ProjectRepository {
 
-    private final DSLContext context;
+    @NonNull private final DSLContext context;
 
-    // Constants (good practices: no magic numbers/strings inline)
-    private static final int SECONDS_PER_DAY = 86_400;
-    private static final long SENSIBLE_USER_ID = 9_461L;
-    private static final short SENSIBLE_AUT_FLAG = 1;
-    private static final short FLAG_TRUE = 1;
-    private static final String DEFAULT_LABEL = "Aucun";
-    private static final String COL_DELAI_MOYEN = "delai_moyen";
-    private static final String SBP_SERVICE_CODE = "DAQSS_SBPP";
-    private static final String SR_SERVICE_CODE = "DIQASM_SR";
-    private static final String SBP_MANAGER_PROFILE_CODE = "50";
-    private static final String SR_MANAGER_PROFILE_CODE = "1004";
-    private static final String SBP_ASSISTANT_PROFILE_CODE = "55";
-    private static final String SR_ASSISTANT_PROFILE_CODE = "1024";
-    private static final DateTimeFormatter DDMMYYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    public ProjectRepository(DSLContext context) {
-        this.context = context;
-    }
 
     /**
      * Retrieves a list of projects with pagination support.
@@ -295,85 +272,6 @@ public class ProjectRepository {
             log.error("Failed to count projects with filters {}", filters, e);
             throw new IllegalStateException("Erreur lors du comptage des projets", e);
         }
-    }
-
-    public String getProjectType(String dosId) {
-        Long id;
-        try {
-            id = dosId != null ? Long.valueOf(dosId) : null;
-        } catch (NumberFormatException e) {
-            return null; // Invalid id format
-        }
-        if (id == null) return null;
-
-        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
-        var D = Tables.DOSSIER.as("d");
-
-        return context
-                .select(RTDE.REGROUP)
-                .from(D.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE)))
-                .where(D.DOS_ID.eq(id))
-                .fetchOne(RTDE.REGROUP);
-    }
-
-    /**
-     * Calculates the average time (in days) taken to complete projects, grouped by their typology.
-     * The calculation considers the total duration from the start of the project to its closure,
-     * minus any suspension periods.
-     *
-     * @return a map where the keys are typology labels and the values are the average completion times in days
-     */
-    public Map<String, Integer> averageTimePerTypology() {
-        log.info("Requesting database for calculating average time per typology ...");
-        var D = Tables.DOSSIER.as("d");
-        var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
-        var SD = Tables.SUSPENSION_DELAI.as("sd");
-
-        // extract(epoch from d.dos_date_cloture - d.dos_date_debut_cadrage)/86400
-        var mainDays = DSL.field(
-                "extract(epoch from {0} - {1}) / {2}",
-                Double.class,
-                D.DOS_DATE_CLOTURE, D.DOS_DATE_DEBUT_CADRAGE, DSL.inline(SECONDS_PER_DAY)
-        );
-
-        // coalesce((select sum(extract(epoch from sd.spd_date_de_fin - sd.spd_date_de_debut)/86400) from suspension_delai sd where sd.dos_id = d.dos_id), 0)
-        // Build this as a proper jOOQ subselect so the table renders correctly as "suspension_delai sd"
-        var suspDaysSubSelect = DSL
-                .select(
-                        DSL.sum(
-                                DSL.field(
-                                        "extract(epoch from {0} - {1}) / {2}",
-                                        Double.class,
-                                        SD.SPD_DATE_DE_FIN,
-                                        SD.SPD_DATE_DE_DEBUT,
-                                        DSL.inline(SECONDS_PER_DAY)
-                                )
-                        ).as("sum_days")
-                )
-                .from(SD)
-                .where(SD.DOS_ID.eq(D.DOS_ID));
-
-        var suspDays = DSL.coalesce(suspDaysSubSelect.asField(), DSL.inline(0d));
-
-        var expr = DSL.field("({0} - {1})", Double.class, mainDays, suspDays);
-
-        var delaiMoyen = DSL.round(DSL.avg(expr), 0).cast(Integer.class).as(COL_DELAI_MOYEN);
-
-        var result = context
-                .select(RTDE.REGROUP, delaiMoyen)
-                .from(D.leftJoin(RTDE).on(D.TDE_CODE.eq(RTDE.TDE_CODE)))
-                .groupBy(RTDE.REGROUP)
-                .fetch();
-
-        Map<String, Integer> map = new HashMap<>();
-        result.forEach(rec -> {
-            String key = rec.get(RTDE.REGROUP);
-            Integer value = rec.get(COL_DELAI_MOYEN, Integer.class);
-            if (value != null) {
-                map.put(key != null ? key : DEFAULT_LABEL, value);
-            }
-        });
-        return map;
     }
 
     public List<ProjectManagerDto> getProjectManagers(UserTypeDto userType) {
