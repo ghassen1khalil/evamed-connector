@@ -343,6 +343,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /global-indicators/workingGroupForCurrentYear:
+    get:
+      summary: Working group for the current year
+      description: Returns the working group identifier for the current year.
+      operationId: getWorkingGroupForCurrentYear
+      tags:
+        - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
+      responses:
+        "200":
+          description: Working group identifier for the current year.
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "working-group-2024"
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /global-indicators/projectTypologyPerDomain:
     get:
       summary: Typology distribution per domain
