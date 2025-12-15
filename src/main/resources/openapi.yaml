@@ -254,6 +254,13 @@ paths:
       operationId: getProjectsByTyplogy
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of typology identifiers to project counts.
@@ -277,6 +284,13 @@ paths:
       operationId: getProjectsByPhase
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of project phases to counts.
@@ -301,6 +315,13 @@ paths:
       operationId: getAverageTimePerTyplogy
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of typology identifiers to average time values.
@@ -324,6 +345,13 @@ paths:
       operationId: getProjectTypologyPerDomain
       tags:
         - Global-Indicators
+      parameters:
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
       responses:
         "200":
           description: Map of application domains to typology counts.
