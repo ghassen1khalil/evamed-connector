@@ -7,6 +7,11 @@ info:
 servers:
   - url: http://localhost:8080
     description: Local development server
+tags:
+  - name: Projects
+    description: Endpoints related to projects listing and reference data.
+  - name: Global-Indicators
+    description: Aggregated indicators and statistics.
 paths:
   /projects:
     get:
@@ -247,11 +252,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/projectsByTyplogy:
+  /global-indicators/projectsByTypology:
     get:
       summary: Count of projects by typology
       description: Returns the number of projects grouped by typology.
-      operationId: getProjectsByTyplogy
+      operationId: getProjectsByTypology
       tags:
         - Global-Indicators
       parameters:
@@ -308,11 +313,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /global-indicators/averageTimePerTyplogy:
+  /global-indicators/averageTimePerTypology:
     get:
       summary: Average time by typology
       description: Returns the average processing time for projects by typology.
-      operationId: getAverageTimePerTyplogy
+      operationId: getAverageTimePerTypology
       tags:
         - Global-Indicators
       parameters:

@@ -20,7 +20,7 @@ public class GlobalIndicatorsController implements GlobalIndicatorsApi {
     }
 
     @Override
-    public ResponseEntity<Map<String, Integer>> getAverageTimePerTyplogy(UserTypeDto userType) {
+    public ResponseEntity<Map<String, Integer>> getAverageTimePerTypology(UserTypeDto userType) {
         log.info("Global Indicators Api - Getting average time per typology with userType={}", userType);
         return ResponseEntity.ok(this.globalIndicatorsService.getGlobalIndicators());
     }
@@ -38,8 +38,8 @@ public class GlobalIndicatorsController implements GlobalIndicatorsApi {
     }
 
     @Override
-    public ResponseEntity<Map<String, Integer>> getProjectsByTyplogy(UserTypeDto userType) {
+    public ResponseEntity<Map<String, Integer>> getProjectsByTypology(UserTypeDto userType) {
         log.info("Global Indicators Api - Getting projects by typology with userType={}", userType);
-        return GlobalIndicatorsApi.super.getProjectsByTyplogy(userType);
+        return GlobalIndicatorsApi.super.getProjectsByTypology(userType);
     }
 }
