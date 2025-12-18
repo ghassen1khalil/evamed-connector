@@ -16,12 +16,14 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static fr.has.evamed.connector.utils.DatabaseConstants.*;
+import static fr.has.evamed.connector.utils.EvamedConstants.*;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectCount;
 
@@ -382,7 +384,7 @@ public class ProjectRepository {
                                              Field<Short> cpjEvalue,
                                              Field<String> srvCode) {
         if (userType == null) {
-            throw new IllegalArgumentException("Le type d'utilisateur est obligatoire");
+            throw new IllegalArgumentException("User type must be provided" );
         }
         Condition base = cpjEvalue.eq(DSL.inline(FLAG_TRUE));
         switch (userType) {
@@ -472,10 +474,15 @@ public class ProjectRepository {
             if (dto != null && list != null) dto.setSuspensions(list);
         });
 
+        populatePhases(items);
+
         // Ensure non-null group objects/lists according to contract
         for (ProjectDto dto : items) {
             if (dto.getProjectManagers() == null) {
                 dto.setProjectManagers(new ProjectProjectManagersDto());
+            }
+            if (dto.getPhases() == null) {
+                dto.setPhases(List.of());
             }
             // applicationDomains is generated as non-null list in new model; no action needed for lists already initialisées
         }
@@ -699,6 +706,58 @@ public class ProjectRepository {
             map.computeIfAbsent(dosId, k -> new ArrayList<>()).add(dto);
         });
         return map;
+    }
+
+    private void populatePhases(List<ProjectDto> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+        for (ProjectDto dto : items) {
+            if (dto == null) {
+                continue;
+            }
+            List<PhaseDto> phases = new ArrayList<>();
+
+            addPhase(phases, BLUE_PHASE_LABEL, dto.getScopingStartDate(), dto.getScopingDate());
+
+            List<GtGlMeetingDto> meetings = dto.getGtglMeetings();
+            LocalDate firstMeetingDate = null;
+            LocalDate lastMeetingDate = null;
+            if (meetings != null && !meetings.isEmpty()) {
+                firstMeetingDate = meetings.stream()
+                        .map(GtGlMeetingDto::getDate)
+                        .filter(Objects::nonNull)
+                        .min(Comparator.naturalOrder())
+                        .orElse(null);
+                lastMeetingDate = meetings.stream()
+                        .map(GtGlMeetingDto::getDate)
+                        .filter(Objects::nonNull)
+                        .max(Comparator.naturalOrder())
+                        .orElse(null);
+            }
+
+            LocalDate orangeStart = dto.getScopingDate() != null ? dto.getScopingDate() : firstMeetingDate;
+            addPhase(phases, ORANGE_PHASE_LABEL, orangeStart, lastMeetingDate);
+
+            addPhase(phases, VIOLET_PHASE_LABEL, dto.getReviewDate(), dto.getValidationDate());
+
+            dto.setPhases(phases);
+        }
+    }
+
+    private void addPhase(List<PhaseDto> phases, String label, LocalDate begin, LocalDate end) {
+        if (begin == null && end == null) {
+            return;
+        }
+        PhaseDto phase = new PhaseDto();
+        phase.setLabel(label);
+        if (begin != null) {
+            phase.setBeginDate(begin);
+        }
+        if (end != null) {
+            phase.setEndDate(end);
+        }
+        phases.add(phase);
     }
 
     @SafeVarargs

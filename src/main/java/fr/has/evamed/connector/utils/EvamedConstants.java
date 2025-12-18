@@ -3,7 +3,7 @@ package fr.has.evamed.connector.utils;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class DatabaseConstants {
+public class EvamedConstants {
 
     // Constants (good practices: no magic numbers/strings inline)
     public static final int SECONDS_PER_DAY = 86_400;
@@ -22,4 +22,8 @@ public class DatabaseConstants {
     public static final DateTimeFormatter DDMMYYYY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public static final List<String> ALLOWED_MCO_CODES = List.of("APP_01", "APP_05", "RECO_01", "RECO_109", "SMS_01", "SMS_03");
+
+    public static final String BLUE_PHASE_LABEL = "Bleue";
+    public static final String ORANGE_PHASE_LABEL = "Orange";
+    public static final String VIOLET_PHASE_LABEL = "Violette";
 }

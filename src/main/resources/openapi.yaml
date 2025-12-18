@@ -639,14 +639,14 @@ components:
         beginDate:
           type: string
           format: date
-          description: Date de début de la phase (format YYYY-MM-DD).
+          description: Starting date of the phase (format YYYY-MM-DD).
         endDate:
           type: string
           format: date
-          description: Date de fin de la phase (format YYYY-MM-DD).
+          description: End date of the phase (format YYYY-MM-DD).
         label:
           type: string
-          description: Libellé de la phase.
+          description: Label of the phase.
     ProjectManager:
       type: object
       required:
