@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static fr.has.evamed.connector.utils.DatabaseConstants.*;
+import static fr.has.evamed.connector.utils.EvamedConstants.*;
 
 @Repository
 @RequiredArgsConstructor

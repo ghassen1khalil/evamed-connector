@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static fr.has.evamed.connector.utils.DatabaseConstants.*;
+import static fr.has.evamed.connector.utils.EvamedConstants.*;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.selectCount;
 
@@ -384,7 +384,7 @@ public class ProjectRepository {
                                              Field<Short> cpjEvalue,
                                              Field<String> srvCode) {
         if (userType == null) {
-            throw new IllegalArgumentException("Le type d'utilisateur est obligatoire");
+            throw new IllegalArgumentException("User type must be provided" );
         }
         Condition base = cpjEvalue.eq(DSL.inline(FLAG_TRUE));
         switch (userType) {
@@ -718,7 +718,7 @@ public class ProjectRepository {
             }
             List<PhaseDto> phases = new ArrayList<>();
 
-            addPhase(phases, "Bleue", dto.getScopingStartDate(), dto.getScopingDate());
+            addPhase(phases, BLUE_PHASE_LABEL, dto.getScopingStartDate(), dto.getScopingDate());
 
             List<GtGlMeetingDto> meetings = dto.getGtglMeetings();
             LocalDate firstMeetingDate = null;
@@ -737,9 +737,9 @@ public class ProjectRepository {
             }
 
             LocalDate orangeStart = dto.getScopingDate() != null ? dto.getScopingDate() : firstMeetingDate;
-            addPhase(phases, "Orange", orangeStart, lastMeetingDate);
+            addPhase(phases, ORANGE_PHASE_LABEL, orangeStart, lastMeetingDate);
 
-            addPhase(phases, "Violette", dto.getReviewDate(), dto.getValidationDate());
+            addPhase(phases, VIOLET_PHASE_LABEL, dto.getReviewDate(), dto.getValidationDate());
 
             dto.setPhases(phases);
         }
