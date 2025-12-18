@@ -521,6 +521,11 @@ components:
           items:
             type: string
           description: Application domains of the project.
+        phases:
+          type: array
+          description: Chronological list of project phases.
+          items:
+            $ref: '#/components/schemas/Phase'
         projectManagers:
           type: object
           description: Grouped lists of project managers.
@@ -623,6 +628,25 @@ components:
           description: List of suspensions applied to the project.
           items:
             $ref: '#/components/schemas/Suspension'
+    Phase:
+      type: object
+      description: Detailed information about a project phase.
+      required:
+        - beginDate
+        - endDate
+        - label
+      properties:
+        beginDate:
+          type: string
+          format: date
+          description: Date de début de la phase (format YYYY-MM-DD).
+        endDate:
+          type: string
+          format: date
+          description: Date de fin de la phase (format YYYY-MM-DD).
+        label:
+          type: string
+          description: Libellé de la phase.
     ProjectManager:
       type: object
       required:
