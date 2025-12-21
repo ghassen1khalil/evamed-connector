@@ -14,8 +14,8 @@ public class ProjectFilters {
     Integer offset;
     Integer limit;
     UserTypeDto userType;
-    List<String> projectManagerId;
-    List<String> managementAssistantId;
+    List<String> projectManagersIds;
+    List<String> managementAssistantsIds;
     List<String> projectsTypes;
     Boolean isSensitive;
     Boolean isFinished;

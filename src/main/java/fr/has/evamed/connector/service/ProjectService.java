@@ -66,12 +66,12 @@ public class ProjectService {
         try {
             int off = filters.getOffset() != null ? filters.getOffset() : 0;
             int lim = filters.getLimit() != null ? filters.getLimit() : 20;
-            if (CollectionUtils.isEmpty(filters.getProjectManagerId())) {
+            if (CollectionUtils.isEmpty(filters.getProjectManagersIds())) {
                 // Si l'utilisateur n'a pas sélectionné des CPs :
                 // 1 : On cherche la liste des CPs correspondant aux filtres
                 // 2 : On cherche les projets pour les CPs retournés en passant le résultat da la 1ère requête
                 List<ProjectManagerDto> projectManagers = projectRepository.getProjectManagersByFilter(filters);
-                filters.setProjectManagerId(projectManagers.stream().map(ProjectManagerDto::getId).toList());
+                filters.setProjectManagersIds(projectManagers.stream().map(ProjectManagerDto::getId).toList());
                 List<ProjectDto> projectsForManager = projectRepository.getProjects(off, lim, filters);
                 // Regrouper les projets par "Nom Prénom" du manager primaire en évitant les doublons
                 Map<String, Set<String>> projectIdsByManager = new HashMap<>();
@@ -109,7 +109,7 @@ public class ProjectService {
 
                 // 2 : On fait le croisement entre la liste de CPs retournés par la première requête
                 //     et le filtre des CPs sélectionnés par l'utilisateur
-                List<String> selectedManagerIds = filters.getProjectManagerId();
+                List<String> selectedManagerIds = filters.getProjectManagersIds();
                 Set<String> selectedIdsSet = selectedManagerIds != null ? new HashSet<>(selectedManagerIds) : new HashSet<>();
                 List<String> intersectedIds = new ArrayList<>();
                 if (CollectionUtils.isNotEmpty(projectManagers)) {
@@ -121,7 +121,7 @@ public class ProjectService {
                 }
 
                 // 3 : On cherche les projets en passant comme filtre de CP le résultat du croisement
-                filters.setProjectManagerId(intersectedIds);
+                filters.setProjectManagersIds(intersectedIds);
                 List<ProjectDto> projectsForManager = projectRepository.getProjects(off, lim, filters);
 
                 // Regrouper les projets par "Nom Prénom" du manager primaire en évitant les doublons

@@ -153,7 +153,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /projects-for-managers:
+  /projects-by-managers:
     get:
       summary: List projects grouped by managers
       description: |
@@ -161,7 +161,7 @@ paths:
         Accepts identical query parameters and filters, combining project manager and
         management assistant filters with logical AND. Results are ordered by creation date
         descending unless a custom sort is provided.
-      operationId: getProjectsForManagers
+      operationId: getProjectsByManagers
       tags:
         - Projects
       parameters:
@@ -173,7 +173,7 @@ paths:
           description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
           schema:
             $ref: '#/components/schemas/UserType'
-        - name: projectManagerId
+        - name: projectManagersIds
           in: query
           required: false
           description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
@@ -183,7 +183,7 @@ paths:
             type: array
             items:
               type: string
-        - name: managementAssistantId
+        - name: managementAssistantsIds
           in: query
           required: false
           description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.

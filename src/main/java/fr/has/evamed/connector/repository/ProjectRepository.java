@@ -126,13 +126,13 @@ public class ProjectRepository {
             }
 
             // 3. Project manager IDs (optional)
-            var pmIds = parseIds(filters.getProjectManagerId());
+            var pmIds = parseIds(filters.getProjectManagersIds());
             if (!pmIds.isEmpty()) {
                 where = where.and(Tables.CHEF_PROJET.UTL_ID.in(pmIds));
             }
 
             // 4. Management assistant (optional)
-            var maIds = parseIds(filters.getManagementAssistantId());
+            var maIds = parseIds(filters.getManagementAssistantsIds());
             if (!maIds.isEmpty()) {
                 var AMP_AG = Tables.AUTRE_MEMBRE_PROJET.as("amp_ag");
                 query = query.join(AMP_AG).on(Tables.DOSSIER.DOS_ID.eq(AMP_AG.DOS_ID));
@@ -227,13 +227,13 @@ public class ProjectRepository {
             }
 
             // 3. Project manager IDs (optional)
-            var pmIds = parseIds(filters.getProjectManagerId());
+            var pmIds = parseIds(filters.getProjectManagersIds());
             if (!pmIds.isEmpty()) {
                 where = where.and(CP.UTL_ID.in(pmIds));
             }
 
             // 4. Management assistant (optional)
-            var maIds = parseIds(filters.getManagementAssistantId());
+            var maIds = parseIds(filters.getManagementAssistantsIds());
             if (!maIds.isEmpty()) {
                 var AMP_AG = Tables.AUTRE_MEMBRE_PROJET.as("amp_ag");
                 query = query.join(AMP_AG).on(D.DOS_ID.eq(AMP_AG.DOS_ID));
@@ -418,13 +418,13 @@ public class ProjectRepository {
             }
 
             // 3. Project manager IDs (optional)
-            var pmIds = parseIds(filters.getProjectManagerId());
+            var pmIds = parseIds(filters.getProjectManagersIds());
             if (!pmIds.isEmpty()) {
                 where = where.and(CP.UTL_ID.in(pmIds));
             }
 
             // 4. Management assistant (optional)
-            var maIds = parseIds(filters.getManagementAssistantId());
+            var maIds = parseIds(filters.getManagementAssistantsIds());
             if (!maIds.isEmpty()) {
                 var AMP_AG = Tables.AUTRE_MEMBRE_PROJET.as("amp_ag");
                 query = query.join(AMP_AG).on(D.DOS_ID.eq(AMP_AG.DOS_ID));

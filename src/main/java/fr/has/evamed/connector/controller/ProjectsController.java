@@ -1,7 +1,6 @@
 package fr.has.evamed.connector.controller;
 
 import fr.has.evamed.connector.domain.*;
-import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
 import fr.has.evamed.connector.utils.CommonUtils;
@@ -12,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
@@ -58,7 +56,7 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<PaginatedProjectsByManagerResponseDto> getProjectsForManagers(UserTypeDto userType,
+    public ResponseEntity<PaginatedProjectsByManagerResponseDto> getProjectsByManagers(UserTypeDto userType,
                                                                                         Integer offset,
                                                                                         Integer limit,
                                                                                         List<String> projectManagerId,
