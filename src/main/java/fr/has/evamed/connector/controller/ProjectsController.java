@@ -4,6 +4,7 @@ import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
+import fr.has.evamed.connector.utils.CommonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -21,21 +23,20 @@ public class ProjectsController implements ProjectsApi {
     @NonNull private final ProjectService projectService;
 
     @Override
-    public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType, Integer offset, Integer limit, List<String> projectManagerId, List<String> managementAssistantId, List<String> projectType, Boolean isSensitive, Boolean isProjectFinished, ProjectPhaseFilterDto phase, PeriodFilterDto period) {
-        log.info("Projects Api - Getting projects with filters: userType={}, projectManagerId={}, managementAssistantId={}, projectType={}, isSensitive={}, isProjectFinished={}, phase={}, period={}", userType, projectManagerId, managementAssistantId, projectType, isSensitive, isProjectFinished, phase, period);
-        ProjectFilters filters = ProjectFilters.builder()
-                .userType(userType)
-                .offset(offset)
-                .limit(limit)
-                .projectManagerId(projectManagerId)
-                .managementAssistantId(managementAssistantId)
-                .projectsTypes(projectType)
-                .isSensitive(isSensitive)
-                .isFinished(isProjectFinished)
-                .phase(phase)
-                .period(period)
-                .build();
-        return ResponseEntity.ok(projectService.getProjects(offset, limit, filters));
+    public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType,
+                                                                   Integer offset,
+                                                                   Integer limit,
+                                                                   List<String> projectManagerId,
+                                                                   List<String> managementAssistantId,
+                                                                   List<String> projectType,
+                                                                   Boolean isSensitive,
+                                                                   Boolean isProjectFinished,
+                                                                   ProjectPhaseFilterDto phase,
+                                                                   PeriodFilterDto period) {
+        log.info("Projects Api - Getting projects");
+        return ResponseEntity.ok(projectService.getProjects(CommonUtils
+                .buildFilters(userType, offset, limit, projectManagerId, managementAssistantId, projectType, isSensitive,
+                        isProjectFinished, phase, period)));
     }
 
     @Override
@@ -54,5 +55,22 @@ public class ProjectsController implements ProjectsApi {
     public ResponseEntity<List<String>> getTypologies(UserTypeDto userType) {
         log.info("Projects Api - Getting typologies with userType={}", userType);
         return ResponseEntity.ok(projectService.getTypologies(userType));
+    }
+
+    @Override
+    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForManagers(UserTypeDto userType,
+                                                                                Integer offset,
+                                                                                Integer limit,
+                                                                                List<String> projectManagerId,
+                                                                                List<String> managementAssistantId,
+                                                                                List<String> projectType,
+                                                                                Boolean isSensitive,
+                                                                                Boolean isProjectFinished,
+                                                                                ProjectPhaseFilterDto phase,
+                                                                                PeriodFilterDto period) {
+        log.info("Projects Api - Getting projects for managers");
+        return ResponseEntity.ok(projectService.groupProjectsByManagers(CommonUtils
+                .buildFilters(userType, offset, limit, projectManagerId, managementAssistantId, projectType, isSensitive,
+                        isProjectFinished, phase, period)));
     }
 }
