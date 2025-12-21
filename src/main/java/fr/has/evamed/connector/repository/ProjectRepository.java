@@ -378,7 +378,113 @@ public class ProjectRepository {
                 .fetch(RTDE.REGROUP);
     }
 
-    public List<ProjectManagerDto> getProjectManagersByFilter(ProjectFilters filters) {
+    public List<ManagementAssistantDto> getProjectManagementAssistantsByFilter(ProjectFilters filters) {
+        log.info("Requesting database for project management assistants by filters ...");
+        log.debug("Incoming filters for getProjectManagementAssistantsByFilter: {}", filters);
+        try {
+            var D = Tables.DOSSIER.as("d");
+            var CP = Tables.CHEF_PROJET.as("cp");
+            var U_PM = Tables.UTILISATEUR.as("u_pm");
+            var AMP_AG = Tables.AUTRE_MEMBRE_PROJET.as("amp_ag");
+            var U_AG = Tables.UTILISATEUR.as("u_ag");
+
+            var query = context
+                    .selectDistinct(U_AG.UTL_ID, U_AG.UTL_NOM, U_AG.UTL_PRENOM)
+                    .from(D)
+                    .join(CP).on(D.DOS_ID.eq(CP.DOS_ID))
+                    .join(U_PM).on(CP.UTL_ID.eq(U_PM.UTL_ID))
+                    .join(AMP_AG).on(D.DOS_ID.eq(AMP_AG.DOS_ID))
+                    .join(U_AG).on(AMP_AG.UTL_ID.eq(U_AG.UTL_ID));
+
+            Condition where = DSL.noCondition();
+
+            // 1. User type (mandatory)
+            where = where.and(buildUserTypeCondition(filters.getUserType(), D.TDOS_CODE, CP.CPJ_EVALUE, U_PM.SRV_CODE));
+
+            // 2. Period (optional)
+            if (filters.getPeriod() != null && filters.getPeriod().getBeginDate() != null && filters.getPeriod().getEndDate() != null) {
+                where = where.and(
+                        buildPeriodCondition(
+                                filters.getPeriod().getBeginDate(),
+                                filters.getPeriod().getEndDate(),
+                                D.DOS_DATE_SAISINE,
+                                D.DOS_DATE_DEBUT_CADRAGE,
+                                D.DOS_DATE_CADRAGE,
+                                D.DOS_DATE_PGT,
+                                D.DOS_DATE_DGT,
+                                D.DOS_DATE_EXAMEN,
+                                D.DOS_DATE_VALIDATION,
+                                D.DOS_DATE_MISE_EN_LIGNE,
+                                D.DOS_DATE_CLOTURE
+                        )
+                );
+            }
+
+            // 3. Project manager IDs (optional)
+            var pmIds = parseIds(filters.getProjectManagersIds());
+            if (!pmIds.isEmpty()) {
+                where = where.and(CP.UTL_ID.in(pmIds));
+            }
+
+            // 4. Management assistant (optional) + mandatory AMP_AG flag
+            where = where.and(AMP_AG.AMP_AG.eq(DSL.inline(FLAG_TRUE)));
+            var maIds = parseIds(filters.getManagementAssistantsIds());
+            if (!maIds.isEmpty()) {
+                where = where.and(AMP_AG.UTL_ID.in(maIds));
+            }
+
+            // 5. Sensitivity (optional)
+            if (Boolean.TRUE.equals(filters.getIsSensitive())) {
+                var AMP_SENS = Tables.AUTRE_MEMBRE_PROJET.as("amp_sensible");
+                query = query.join(AMP_SENS).on(D.DOS_ID.eq(AMP_SENS.DOS_ID));
+                where = where.and(AMP_SENS.UTL_ID.eq(DSL.inline(SENSIBLE_USER_ID)))
+                             .and(AMP_SENS.AMP_AUT.eq(DSL.inline(SENSIBLE_AUT_FLAG)));
+            }
+
+            // 6. Typologies (optional)
+            if (filters.getProjectsTypes() != null && !filters.getProjectsTypes().isEmpty()) {
+                var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
+                query = query.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE));
+                where = where.and(RTDE.REGROUP.in(filters.getProjectsTypes()));
+            }
+
+            // 7. Finished projects (optional)
+            if (Boolean.TRUE.equals(filters.getIsFinished())) {
+                where = where.and(D.DOS_DATE_CLOTURE.isNotNull());
+            }
+
+            // 8. Phase (optional)
+            if (filters.getPhase() != null) {
+                String phaseCode = mapPhaseCode(filters.getPhase());
+                if (phaseCode != null) {
+                    where = where.and(D.AVC_CODE.eq(phaseCode));
+                }
+            }
+
+            var records = query
+                    .where(where)
+                    .orderBy(U_AG.UTL_NOM.asc(), U_AG.UTL_PRENOM.asc())
+                    .fetch();
+
+            List<ManagementAssistantDto> assistants = new ArrayList<>();
+            records.forEach(r -> {
+                ManagementAssistantDto dto = new ManagementAssistantDto();
+                var id = r.get(U_AG.UTL_ID);
+                if (id != null) dto.setId(String.valueOf(id));
+                var firstName = r.get(U_AG.UTL_PRENOM);
+                if (firstName != null) dto.setFirstName(firstName);
+                var lastName = r.get(U_AG.UTL_NOM);
+                if (lastName != null) dto.setLastName(lastName);
+                assistants.add(dto);
+            });
+            return assistants;
+        } catch (Exception e) {
+            log.error("Failed to fetch management assistants by filters {}", filters, e);
+            throw new IllegalStateException("Erreur lors de la récupération des assistantes de gestion", e);
+        }
+    }
+
+    public List<ProjectManagerDto> getProjectsManagersByFilter(ProjectFilters filters) {
         log.info("Requesting database for project managers by filters ...");
         log.debug("Incoming filters for getProjectManagersByFilter: {}", filters);
 
