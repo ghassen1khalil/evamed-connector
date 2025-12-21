@@ -58,18 +58,18 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<Map<String, List<ProjectDto>>> getProjectsForManagers(UserTypeDto userType,
-                                                                                Integer offset,
-                                                                                Integer limit,
-                                                                                List<String> projectManagerId,
-                                                                                List<String> managementAssistantId,
-                                                                                List<String> projectType,
-                                                                                Boolean isSensitive,
-                                                                                Boolean isProjectFinished,
-                                                                                ProjectPhaseFilterDto phase,
-                                                                                PeriodFilterDto period) {
-        log.info("Projects Api - Getting projects for managers");
-        return ResponseEntity.ok(projectService.groupProjectsByManagers(CommonUtils
+    public ResponseEntity<PaginatedProjectsByManagerResponseDto> getProjectsForManagers(UserTypeDto userType,
+                                                                                        Integer offset,
+                                                                                        Integer limit,
+                                                                                        List<String> projectManagerId,
+                                                                                        List<String> managementAssistantId,
+                                                                                        List<String> projectType,
+                                                                                        Boolean isSensitive,
+                                                                                        Boolean isProjectFinished,
+                                                                                        ProjectPhaseFilterDto phase,
+                                                                                        PeriodFilterDto period) {
+        log.info("Projects Api - Getting projects for managers (paginated)");
+        return ResponseEntity.ok(projectService.getProjectsForManagers(CommonUtils
                 .buildFilters(userType, offset, limit, projectManagerId, managementAssistantId, projectType, isSensitive,
                         isProjectFinished, phase, period)));
     }

@@ -1,10 +1,6 @@
 package fr.has.evamed.connector.service;
 
-import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
-import fr.has.evamed.connector.domain.ProjectDto;
-import fr.has.evamed.connector.domain.ProjectManagerDto;
-import fr.has.evamed.connector.domain.ManagementAssistantDto;
-import fr.has.evamed.connector.domain.UserTypeDto;
+import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.repository.ProjectRepository;
 import lombok.NonNull;
@@ -52,7 +48,20 @@ public class ProjectService {
         return projectRepository.getTypologies(userType);
     }
 
-    public Map<String, List<ProjectDto>> groupProjectsByManagers(ProjectFilters filters) {
+    public PaginatedProjectsByManagerResponseDto getProjectsForManagers(ProjectFilters filters) {
+        try {
+            int off = filters.getOffset() != null ? filters.getOffset() : 0;
+            int lim = filters.getLimit() != null ? filters.getLimit() : 20;
+            Map<String, List<ProjectDto>> grouped = groupProjectsByManagers(filters);
+            int total = projectRepository.countProjects(filters);
+            return new PaginatedProjectsByManagerResponseDto(grouped, lim, off, total);
+        } catch (Exception e) { //TODO Better exception handling
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    private Map<String, List<ProjectDto>> groupProjectsByManagers(ProjectFilters filters) {
         Map<String, List<ProjectDto>> projectsByManagers = new HashMap<>();
         try {
             int off = filters.getOffset() != null ? filters.getOffset() : 0;

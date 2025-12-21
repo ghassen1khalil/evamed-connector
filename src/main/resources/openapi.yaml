@@ -244,62 +244,62 @@ paths:
             $ref: '#/components/schemas/PeriodFilter'
       responses:
         "200":
-          description: Map of managers to their associated projects.
+          description: Paginated map of managers to their associated projects.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProjectsByManagerMap'
+                $ref: '#/components/schemas/PaginatedProjectsByManagerResponse'
               examples:
                 sample:
-                  summary: Projects grouped by manager identifier
+                  summary: Paginated projects grouped by manager name
                   value:
-                    manager-123:
-                      - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
-                        number: "PRJ-2024-001"
-                        type: "clinical"
-                        title: "Study on treatment efficacy"
-                        isSensitive: false
-                        applicationDomains:
-                          - "pharmaceutical"
-                        phases:
-                          - beginDate: "2024-01-15"
-                            endDate: "2024-06-15"
-                            label: "Phase I"
-                        projectManagers:
-                          primary:
-                            - firstName: "Alex"
-                              lastName: "Durand"
-                              isPrimary: true
-                              isSecondary: false
-                          secondary: []
-                        managementAssistant:
-                          - id: "assistant-1"
-                            firstName: "Louise"
-                            lastName: "Martin"
-                        creationAt: "2024-01-01T10:00:00Z"
-                        endAt: "2024-12-31T18:00:00Z"
-                    manager-789:
-                      - id: "ef7a3b21-4c28-4a8b-9c84-43c4b6e2b2d0"
-                        number: "PRJ-2024-002"
-                        type: "epidemiological"
-                        title: "Vaccination coverage analysis"
-                        isSensitive: true
-                        applicationDomains:
-                          - "public health"
-                        phases:
-                          - beginDate: "2024-02-01"
-                            endDate: "2024-03-15"
-                            label: "Phase I"
-                        projectManagers:
-                          primary:
-                            - firstName: "Sam"
-                              lastName: "Lee"
-                              isPrimary: true
-                              isSecondary: false
-                          secondary: []
-                        managementAssistant: []
-                        creationAt: "2024-02-01T09:30:00Z"
-                        endAt: "2024-11-30T17:00:00Z"
+                    items:
+                      "Durand Alex":
+                        - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                          number: "PRJ-2024-001"
+                          type: "clinical"
+                          title: "Study on treatment efficacy"
+                          isSensitive: false
+                          applicationDomains:
+                            - "pharmaceutical"
+                          phases:
+                            - beginDate: "2024-01-15"
+                              endDate: "2024-06-15"
+                              label: "Phase I"
+                          projectManagers:
+                            primary:
+                              - firstName: "Alex"
+                                lastName: "Durand"
+                            secondary: []
+                          managementAssistant:
+                            - id: "assistant-1"
+                              firstName: "Louise"
+                              lastName: "Martin"
+                          creationAt: "2024-01-01T10:00:00Z"
+                          endAt: "2024-12-31T18:00:00Z"
+                      "Lee Sam":
+                        - id: "ef7a3b21-4c28-4a8b-9c84-43c4b6e2b2d0"
+                          number: "PRJ-2024-002"
+                          type: "epidemiological"
+                          title: "Vaccination coverage analysis"
+                          isSensitive: true
+                          applicationDomains:
+                            - "public health"
+                          phases:
+                            - beginDate: "2024-02-01"
+                              endDate: "2024-03-15"
+                              label: "Phase I"
+                          projectManagers:
+                            primary:
+                              - firstName: "Sam"
+                                lastName: "Lee"
+                            secondary: []
+                          managementAssistant: []
+                          creationAt: "2024-02-01T09:30:00Z"
+                          endAt: "2024-11-30T17:00:00Z"
+                    limit: 20
+                    offset: 0
+                    total: 2
         "400":
           description: Invalid query parameters supplied.
           content:
@@ -926,6 +926,32 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/Project'
+    PaginatedProjectsByManagerResponse:
+      type: object
+      description: Paginated response with a map of manager names to their associated projects.
+      required:
+        - items
+        - limit
+        - offset
+        - total
+      properties:
+        items:
+          $ref: '#/components/schemas/ProjectsByManagerMap'
+        limit:
+          type: integer
+          description: Number of items requested per page.
+          minimum: 1
+          maximum: 100
+          default: 20
+        offset:
+          type: integer
+          description: Zero-based index of the first item returned.
+          minimum: 0
+          default: 0
+        total:
+          type: integer
+          description: Total number of projects matching the filters (without pagination).
+          minimum: 0
   parameters:
     Offset:
       name: offset
