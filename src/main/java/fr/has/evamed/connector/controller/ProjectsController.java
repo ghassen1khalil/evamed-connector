@@ -56,7 +56,7 @@ public class ProjectsController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<PaginatedProjectsByManagerResponseDto> getProjectsByManagers(UserTypeDto userType,
+    public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByManagers(UserTypeDto userType,
                                                                                         Integer offset,
                                                                                         Integer limit,
                                                                                         List<String> projectManagerId,
@@ -67,7 +67,7 @@ public class ProjectsController implements ProjectsApi {
                                                                                         ProjectPhaseFilterDto phase,
                                                                                         PeriodFilterDto period) {
         log.info("Projects Api - Getting projects for managers (paginated)");
-        return ResponseEntity.ok(projectService.getProjectsForManagers(CommonUtils
+        return ResponseEntity.ok(projectService.getProjectsByManagers(CommonUtils
                 .buildFilters(userType, offset, limit, projectManagerId, managementAssistantId, projectType, isSensitive,
                         isProjectFinished, phase, period)));
     }

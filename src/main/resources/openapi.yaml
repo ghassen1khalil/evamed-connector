@@ -244,11 +244,11 @@ paths:
             $ref: '#/components/schemas/PeriodFilter'
       responses:
         "200":
-          description: Paginated map of managers to their associated projects.
+          description: Paginated map of users' names (managers or assistants) to their associated projects.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedProjectsByManagerResponse'
+                $ref: '#/components/schemas/PaginatedProjectsByUsersResponse'
               examples:
                 sample:
                   summary: Paginated projects grouped by manager name
@@ -919,16 +919,16 @@ components:
                 type: string
             - type: object
               additionalProperties: true
-    ProjectsByManagerMap:
+    ProjectsByUsersMap:
       type: object
-      description: Map of manager identifiers to their associated projects.
+      description: Map of users (managers or assistants) names to their associated projects.
       additionalProperties:
         type: array
         items:
           $ref: '#/components/schemas/Project'
-    PaginatedProjectsByManagerResponse:
+    PaginatedProjectsByUsersResponse:
       type: object
-      description: Paginated response with a map of manager names to their associated projects.
+      description: Paginated response with a map of users' names (managers or assistants) to their associated projects.
       required:
         - items
         - limit
@@ -936,7 +936,7 @@ components:
         - total
       properties:
         items:
-          $ref: '#/components/schemas/ProjectsByManagerMap'
+          $ref: '#/components/schemas/ProjectsByUsersMap'
         limit:
           type: integer
           description: Number of items requested per page.

@@ -48,13 +48,13 @@ public class ProjectService {
         return projectRepository.getTypologies(userType);
     }
 
-    public PaginatedProjectsByManagerResponseDto getProjectsForManagers(ProjectFilters filters) {
+    public PaginatedProjectsByUsersResponseDto getProjectsByManagers(ProjectFilters filters) {
         try {
             int off = filters.getOffset() != null ? filters.getOffset() : 0;
             int lim = filters.getLimit() != null ? filters.getLimit() : 20;
             Map<String, List<ProjectDto>> grouped = groupProjectsByManagers(filters);
             int total = projectRepository.countProjects(filters);
-            return new PaginatedProjectsByManagerResponseDto(grouped, lim, off, total);
+            return new PaginatedProjectsByUsersResponseDto(grouped, lim, off, total);
         } catch (Exception e) { //TODO Better exception handling
             log.error(e.getMessage());
         }
