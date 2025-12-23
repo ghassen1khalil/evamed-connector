@@ -1,6 +1,13 @@
 package fr.has.evamed.connector.controller;
 
-import fr.has.evamed.connector.domain.*;
+import fr.has.evamed.connector.domain.ManagementAssistantDto;
+import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
+import fr.has.evamed.connector.domain.PaginatedProjectsByUsersResponseDto;
+import fr.has.evamed.connector.domain.PeriodFilterDto;
+import fr.has.evamed.connector.domain.ProjectFiltersDto;
+import fr.has.evamed.connector.domain.ProjectManagerDto;
+import fr.has.evamed.connector.domain.ProjectPhaseFilterDto;
+import fr.has.evamed.connector.domain.UserTypeDto;
 import fr.has.evamed.connector.model.UserProfile;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
@@ -23,20 +30,24 @@ public class ProjectsController implements ProjectsApi {
     private final ProjectService projectService;
 
     @Override
-    public ResponseEntity<PaginatedProjectResponseDto> getProjects(UserTypeDto userType,
-                                                                   Integer offset,
+    public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset,
                                                                    Integer limit,
-                                                                   List<String> projectManagerId,
-                                                                   List<String> managementAssistantId,
-                                                                   List<String> projectType,
-                                                                   Boolean isSensitive,
-                                                                   Boolean isProjectFinished,
-                                                                   ProjectPhaseFilterDto phase,
-                                                                   PeriodFilterDto period) {
+                                                                   ProjectFiltersDto projectFilters) {
         log.info("Projects Api - Getting projects");
+        ProjectFiltersDto filters = projectFilters == null ? new ProjectFiltersDto() : projectFilters;
         return ResponseEntity.ok(projectService.getProjects(CommonUtils
-                .buildFilters(userType, offset, limit, projectManagerId, managementAssistantId, projectType, isSensitive,
-                        isProjectFinished, phase, period)));
+                .buildFilters(
+                        filters.getUserType(),
+                        offset,
+                        limit,
+                        filters.getProjectManagersIds(),
+                        filters.getManagementAssistantsIds(),
+                        filters.getProjectType(),
+                        filters.getIsSensitive(),
+                        filters.getIsProjectFinished(),
+                        filters.getPhase(),
+                        filters.getPeriod()
+                )));
     }
 
     @Override

@@ -14,7 +14,7 @@ tags:
     description: Aggregated indicators and statistics.
 paths:
   /projects:
-    get:
+    post:
       summary: List projects
       description: |
         Returns a paginated list of projects. Optional filters for project manager and
@@ -26,81 +26,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
-        - name: userType
-          in: query
-          required: true
-          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
-          schema:
-            $ref: '#/components/schemas/UserType'
-        - name: projectManagerId
-          in: query
-          required: false
-          description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: managementAssistantId
-          in: query
-          required: false
-          description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: projectType
-          in: query
-          required: false
-          description: Filter by project types. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: isSensitive
-          in: query
-          required: false
-          description: Filter by sensitive flag.
-          schema:
-            type: boolean
-        - name : isProjectFinished
-          in: query
-          required: false
-          description: Filter by project finished flag.
-          schema: 
-            type: boolean
-        - name: phase
-          in: query
-          required: false
-          description: |
-            Project phase filter possible values :
-            - saisine
-            - debut_cadrage
-            - cadrage
-            - pgt
-            - dgt
-            - examen
-            - validation
-            - mise_en_ligne
-            - cloture
-          schema:
-            $ref: '#/components/schemas/ProjectPhaseFilter'
-
-        - name: period
-          in: query
-          required: false
-          description: |
-            Period filter containing a start date and an end date (inclusive).
-            Uses deepObject serialization: period[beginDate]=YYYY-MM-DD&period[endDate]=YYYY-MM-DD.
-          style: deepObject
-          explode: true
-          schema:
-            $ref: '#/components/schemas/PeriodFilter'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectFilters'
       responses:
         "200":
           description: Paginated list of projects.
@@ -157,7 +88,7 @@ paths:
     get:
       summary: List projects grouped by managers
       description: |
-        Returns the same list of projects as **GET /projects**, grouped by their managers.
+        Returns the same list of projects as **POST /projects**, grouped by their managers.
         Accepts identical query parameters and filters, combining project manager and
         management assistant filters with logical AND. Results are ordered by creation date
         descending unless a custom sort is provided.
@@ -322,7 +253,7 @@ paths:
     get:
       summary: List projects grouped by management assistants
       description: |
-        Returns the same list of projects as **GET /projects**, grouped by their management assistants.
+        Returns the same list of projects as **POST /projects**, grouped by their management assistants.
         Accepts identical query parameters and filters, combining project manager and
         management assistant filters with logical AND. Results are ordered by creation date
         descending unless a custom sort is provided.
@@ -784,6 +715,39 @@ components:
       example:
         beginDate: '2024-01-01'
         endDate: '2024-12-31'
+    ProjectFilters:
+      type: object
+      description: Request body for project search filters.
+      required:
+        - userType
+      properties:
+        userType:
+          $ref: '#/components/schemas/UserType'
+        projectManagersIds:
+          type: array
+          description: Filter by the identifiers of project managers assigned to the project.
+          items:
+            type: string
+        managementAssistantsIds:
+          type: array
+          description: Filter by the identifiers of management assistants assigned to the project.
+          items:
+            type: string
+        projectType:
+          type: array
+          description: Filter by project types.
+          items:
+            type: string
+        isSensitive:
+          type: boolean
+          description: Filter by sensitive flag.
+        isProjectFinished:
+          type: boolean
+          description: Filter by project finished flag.
+        phase:
+          $ref: '#/components/schemas/ProjectPhaseFilter'
+        period:
+          $ref: '#/components/schemas/PeriodFilter'
     PaginatedProjectResponse:
       type: object
       description: Standard paginated response envelope for projects.
