@@ -85,7 +85,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /projects-by-managers:
-    get:
+    post:
       summary: List projects grouped by managers
       description: |
         Returns the same list of projects as **POST /projects**, grouped by their managers.
@@ -98,81 +98,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
-        - name: userType
-          in: query
-          required: true
-          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
-          schema:
-            $ref: '#/components/schemas/UserType'
-        - name: projectManagersIds
-          in: query
-          required: false
-          description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: managementAssistantsIds
-          in: query
-          required: false
-          description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: projectType
-          in: query
-          required: false
-          description: Filter by project types. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: isSensitive
-          in: query
-          required: false
-          description: Filter by sensitive flag.
-          schema:
-            type: boolean
-        - name : isProjectFinished
-          in: query
-          required: false
-          description: Filter by project finished flag.
-          schema:
-            type: boolean
-        - name: phase
-          in: query
-          required: false
-          description: |
-            Project phase filter possible values :
-            - saisine
-            - debut_cadrage
-            - cadrage
-            - pgt
-            - dgt
-            - examen
-            - validation
-            - mise_en_ligne
-            - cloture
-          schema:
-            $ref: '#/components/schemas/ProjectPhaseFilter'
-
-        - name: period
-          in: query
-          required: false
-          description: |
-            Period filter containing a start date and an end date (inclusive).
-            Uses deepObject serialization: period[beginDate]=YYYY-MM-DD&period[endDate]=YYYY-MM-DD.
-          style: deepObject
-          explode: true
-          schema:
-            $ref: '#/components/schemas/PeriodFilter'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectFilters'
       responses:
         "200":
           description: Paginated map of users' names (managers or assistants) to their associated projects.
@@ -250,7 +181,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
   /projects-by-assistants:
-    get:
+    post:
       summary: List projects grouped by management assistants
       description: |
         Returns the same list of projects as **POST /projects**, grouped by their management assistants.
@@ -263,81 +194,12 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
-        - name: userType
-          in: query
-          required: true
-          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
-          schema:
-            $ref: '#/components/schemas/UserType'
-        - name: projectManagersIds
-          in: query
-          required: false
-          description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: managementAssistantsIds
-          in: query
-          required: false
-          description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: projectType
-          in: query
-          required: false
-          description: Filter by project types. Accepts multiple values.
-          style: form
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-        - name: isSensitive
-          in: query
-          required: false
-          description: Filter by sensitive flag.
-          schema:
-            type: boolean
-        - name : isProjectFinished
-          in: query
-          required: false
-          description: Filter by project finished flag.
-          schema:
-            type: boolean
-        - name: phase
-          in: query
-          required: false
-          description: |
-            Project phase filter possible values :
-            - saisine
-            - debut_cadrage
-            - cadrage
-            - pgt
-            - dgt
-            - examen
-            - validation
-            - mise_en_ligne
-            - cloture
-          schema:
-            $ref: '#/components/schemas/ProjectPhaseFilter'
-
-        - name: period
-          in: query
-          required: false
-          description: |
-            Period filter containing a start date and an end date (inclusive).
-            Uses deepObject serialization: period[beginDate]=YYYY-MM-DD&period[endDate]=YYYY-MM-DD.
-          style: deepObject
-          explode: true
-          schema:
-            $ref: '#/components/schemas/PeriodFilter'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectFilters'
       responses:
         "200":
           description: Paginated map of users' names (managers or assistants) to their associated projects.
@@ -733,7 +595,7 @@ components:
           description: Filter by the identifiers of management assistants assigned to the project.
           items:
             type: string
-        projectTypes:
+        projectsTypes:
           type: array
           description: Filter by project types.
           items:
