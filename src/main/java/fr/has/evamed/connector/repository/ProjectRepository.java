@@ -2,7 +2,6 @@ package fr.has.evamed.connector.repository;
 
 import fr.has.evamed.connector.domain.*;
 import fr.has.evamed.connector.mapper.ProjectRecordMapper;
-import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.domain.entities.Tables;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class ProjectRepository {
      * @param limit the maximum number of projects to retrieve
      * @return a list of ProjectDto objects representing the projects
      */
-    public List<ProjectDto> getProjects(Integer offset, Integer limit, ProjectFilters filters) {
+    public List<ProjectDto> getProjects(Integer offset, Integer limit, ProjectFiltersDto filters) {
         log.info("Requesting database for projects and applying filters ...");
         log.debug("Incoming filters for getProjects: {}", filters);
         try {
@@ -149,14 +148,14 @@ public class ProjectRepository {
             }
 
             // 6. Typologies (optional)
-            if (filters.getProjectsTypes() != null && !filters.getProjectsTypes().isEmpty()) {
+            if (filters.getProjectTypes() != null && !filters.getProjectTypes().isEmpty()) {
                 var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
                 query = query.join(RTDE).on(RTDE.TDE_CODE.eq(Tables.DOSSIER.TDE_CODE));
-                where = where.and(RTDE.REGROUP.in(filters.getProjectsTypes()));
+                where = where.and(RTDE.REGROUP.in(filters.getProjectTypes()));
             }
 
             // 7. Finished projects (optional)
-            if (Boolean.TRUE.equals(filters.getIsFinished())) {
+            if (Boolean.TRUE.equals(filters.getIsProjectFinished())) {
                 where = where.and(Tables.DOSSIER.DOS_DATE_CLOTURE.isNotNull());
             }
 
@@ -188,7 +187,7 @@ public class ProjectRepository {
         }
     }
 
-    public int countProjects(ProjectFilters filters) {
+    public int countProjects(ProjectFiltersDto filters) {
         log.info("Requesting database for counting projects using filters ...");
         log.debug("Incoming filters for countProjects: {}", filters);
         try {
@@ -250,14 +249,14 @@ public class ProjectRepository {
             }
 
             // 6. Typologies (optional)
-            if (filters.getProjectsTypes() != null && !filters.getProjectsTypes().isEmpty()) {
+            if (filters.getProjectTypes() != null && !filters.getProjectTypes().isEmpty()) {
                 var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
                 query = query.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE));
-                where = where.and(RTDE.REGROUP.in(filters.getProjectsTypes()));
+                where = where.and(RTDE.REGROUP.in(filters.getProjectTypes()));
             }
 
             // 7. Finished projects (optional)
-            if (Boolean.TRUE.equals(filters.getIsFinished())) {
+            if (Boolean.TRUE.equals(filters.getIsProjectFinished())) {
                 where = where.and(D.DOS_DATE_CLOTURE.isNotNull());
             }
 
@@ -378,7 +377,7 @@ public class ProjectRepository {
                 .fetch(RTDE.REGROUP);
     }
 
-    public List<ManagementAssistantDto> getProjectManagementAssistantsByFilter(ProjectFilters filters) {
+    public List<ManagementAssistantDto> getProjectManagementAssistantsByFilter(ProjectFiltersDto filters) {
         log.info("Requesting database for project management assistants by filters ...");
         log.debug("Incoming filters for getProjectManagementAssistantsByFilter: {}", filters);
         try {
@@ -442,14 +441,14 @@ public class ProjectRepository {
             }
 
             // 6. Typologies (optional)
-            if (filters.getProjectsTypes() != null && !filters.getProjectsTypes().isEmpty()) {
+            if (filters.getProjectTypes() != null && !filters.getProjectTypes().isEmpty()) {
                 var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
                 query = query.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE));
-                where = where.and(RTDE.REGROUP.in(filters.getProjectsTypes()));
+                where = where.and(RTDE.REGROUP.in(filters.getProjectTypes()));
             }
 
             // 7. Finished projects (optional)
-            if (Boolean.TRUE.equals(filters.getIsFinished())) {
+            if (Boolean.TRUE.equals(filters.getIsProjectFinished())) {
                 where = where.and(D.DOS_DATE_CLOTURE.isNotNull());
             }
 
@@ -484,7 +483,7 @@ public class ProjectRepository {
         }
     }
 
-    public List<ProjectManagerDto> getProjectsManagersByFilter(ProjectFilters filters) {
+    public List<ProjectManagerDto> getProjectsManagersByFilter(ProjectFiltersDto filters) {
         log.info("Requesting database for project managers by filters ...");
         log.debug("Incoming filters for getProjectManagersByFilter: {}", filters);
 
@@ -547,14 +546,14 @@ public class ProjectRepository {
             }
 
             // 6. Typologies (optional)
-            if (filters.getProjectsTypes() != null && !filters.getProjectsTypes().isEmpty()) {
+            if (filters.getProjectTypes() != null && !filters.getProjectTypes().isEmpty()) {
                 var RTDE = Tables.REF_TYPE_DOSSIER_EVAL.as("rtde");
                 query = query.join(RTDE).on(RTDE.TDE_CODE.eq(D.TDE_CODE));
-                where = where.and(RTDE.REGROUP.in(filters.getProjectsTypes()));
+                where = where.and(RTDE.REGROUP.in(filters.getProjectTypes()));
             }
 
             // 7. Finished projects (optional)
-            if (Boolean.TRUE.equals(filters.getIsFinished())) {
+            if (Boolean.TRUE.equals(filters.getIsProjectFinished())) {
                 where = where.and(D.DOS_DATE_CLOTURE.isNotNull());
             }
 

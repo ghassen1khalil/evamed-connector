@@ -3,7 +3,6 @@ package fr.has.evamed.connector.utils;
 import fr.has.evamed.connector.domain.PeriodFilterDto;
 import fr.has.evamed.connector.domain.ProjectPhaseFilterDto;
 import fr.has.evamed.connector.domain.UserTypeDto;
-import fr.has.evamed.connector.model.ProjectFilters;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 

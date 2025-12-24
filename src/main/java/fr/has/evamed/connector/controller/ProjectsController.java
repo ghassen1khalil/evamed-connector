@@ -30,24 +30,10 @@ public class ProjectsController implements ProjectsApi {
     private final ProjectService projectService;
 
     @Override
-    public ResponseEntity<PaginatedProjectResponseDto> getProjects(Integer offset,
-                                                                   Integer limit,
-                                                                   ProjectFiltersDto projectFilters) {
+    public ResponseEntity<PaginatedProjectResponseDto> getProjects(ProjectFiltersDto projectFilters, Integer offset, Integer limit) {
         log.info("Projects Api - Getting projects");
         ProjectFiltersDto filters = projectFilters == null ? new ProjectFiltersDto() : projectFilters;
-        return ResponseEntity.ok(projectService.getProjects(CommonUtils
-                .buildFilters(
-                        filters.getUserType(),
-                        offset,
-                        limit,
-                        filters.getProjectManagersIds(),
-                        filters.getManagementAssistantsIds(),
-                        filters.getProjectType(),
-                        filters.getIsSensitive(),
-                        filters.getIsProjectFinished(),
-                        filters.getPhase(),
-                        filters.getPeriod()
-                )));
+        return ResponseEntity.ok(projectService.getProjects(projectFilters, offset, limit));
     }
 
     @Override
@@ -68,7 +54,7 @@ public class ProjectsController implements ProjectsApi {
         return ResponseEntity.ok(projectService.getTypologies(userType));
     }
 
-    @Override
+    /*@Override
     public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByManagers(UserTypeDto userType,
                                                                                      Integer offset,
                                                                                      Integer limit,
@@ -93,9 +79,9 @@ public class ProjectsController implements ProjectsApi {
                                 period)
                 )
         );
-    }
+    }*/
 
-    @Override
+    /*@Override
     public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByAssistants(UserTypeDto userType,
                                                                                        Integer offset,
                                                                                        Integer limit,
@@ -121,5 +107,5 @@ public class ProjectsController implements ProjectsApi {
         )
         );
 
-    }
+    }*/
 }

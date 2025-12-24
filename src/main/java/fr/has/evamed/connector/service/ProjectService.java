@@ -1,7 +1,6 @@
 package fr.has.evamed.connector.service;
 
 import fr.has.evamed.connector.domain.*;
-import fr.has.evamed.connector.model.ProjectFilters;
 import fr.has.evamed.connector.model.UserProfile;
 import fr.has.evamed.connector.repository.ProjectRepository;
 import lombok.NonNull;
@@ -24,10 +23,10 @@ public class ProjectService {
 
     @NonNull private final ProjectRepository projectRepository;
 
-    public PaginatedProjectResponseDto getProjects(ProjectFilters filters) {
+    public PaginatedProjectResponseDto getProjects(ProjectFiltersDto filters, Integer offset, Integer limit) {
         try {
-            int off = filters.getOffset() != null ? filters.getOffset() : 0;
-            int lim = filters.getLimit() != null ? filters.getLimit() : 20;
+            int off = offset != null ? offset : 0;
+            int lim = limit != null ? limit : 20;
             List<ProjectDto> projects = projectRepository.getProjects(off, lim, filters);
             int total = projectRepository.countProjects(filters);
             return new PaginatedProjectResponseDto(projects, lim, off, total);
@@ -51,15 +50,15 @@ public class ProjectService {
 
 
 
-    public PaginatedProjectsByUsersResponseDto getProjectsByUsers(UserProfile userProfile, ProjectFilters filters) {
+    public PaginatedProjectsByUsersResponseDto getProjectsByUsers(UserProfile userProfile, ProjectFiltersDto filters, Integer offset, Integer limit) {
         try {
-            int off = filters.getOffset() != null ? filters.getOffset() : 0;
-            int lim = filters.getLimit() != null ? filters.getLimit() : 20;
+            int off = offset != null ? offset : 0;
+            int lim = limit != null ? limit : 20;
             Map<String, List<ProjectDto>> grouped = new HashMap<>();
             if (UserProfile.MANAGER.equals(userProfile)) {
-                grouped = groupProjectsByManagers(filters);
+                grouped = groupProjectsByManagers(filters, off, lim);
             } else if (UserProfile.ASSISTANT.equals(userProfile)){
-                grouped = groupProjectsByAssistants(filters);
+                grouped = groupProjectsByAssistants(filters, off, lim);
             } else {
                 log.error("Unsupported user profile: {}", userProfile);
                 throw new IllegalArgumentException("Unsupported user profile: " + userProfile);
@@ -72,12 +71,9 @@ public class ProjectService {
         return null;
     }
 
-    private Map<String, List<ProjectDto>> groupProjectsByAssistants(ProjectFilters filters) {
+    private Map<String, List<ProjectDto>> groupProjectsByAssistants(ProjectFiltersDto filters, Integer offset, Integer limit) {
         Map<String, List<ProjectDto>> projectsByAssistants = new HashMap<>();
         try {
-            int off = filters.getOffset() != null ? filters.getOffset() : 0;
-            int lim = filters.getLimit() != null ? filters.getLimit() : 20;
-
             if (CollectionUtils.isEmpty(filters.getManagementAssistantsIds())) {
                 // Si l'utilisateur n'a pas sélectionné d'assistants de gestion :
                 // 1 : On cherche la liste des assistants correspondants aux filtres
@@ -86,7 +82,7 @@ public class ProjectService {
                 if (CollectionUtils.isNotEmpty(managementAssistants)) {
                     filters.setManagementAssistantsIds(managementAssistants.stream().map(ManagementAssistantDto::getId).toList());
                 }
-                List<ProjectDto> projectsForAssistant = projectRepository.getProjects(off, lim, filters);
+                List<ProjectDto> projectsForAssistant = projectRepository.getProjects(offset, limit, filters);
 
                 // Regrouper les projets par "Nom Prénom" de l'assistant en évitant les doublons
                 Map<String, Set<String>> projectIdsByAssistant = new HashMap<>();
@@ -134,7 +130,7 @@ public class ProjectService {
 
                 // 3 : On cherche les projets en passant comme filtre d'assistants le résultat du croisement
                 filters.setManagementAssistantsIds(intersectedIds);
-                List<ProjectDto> projectsForAssistant = projectRepository.getProjects(off, lim, filters);
+                List<ProjectDto> projectsForAssistant = projectRepository.getProjects(offset, limit, filters);
 
                 // Regrouper les projets par "Nom Prénom" de l'assistant en évitant les doublons
                 Map<String, Set<String>> projectIdsByAssistant = new HashMap<>();
@@ -169,11 +165,11 @@ public class ProjectService {
         return projectsByAssistants;
     }
 
-    private Map<String, List<ProjectDto>> groupProjectsByManagers(ProjectFilters filters) {
+    private Map<String, List<ProjectDto>> groupProjectsByManagers(ProjectFiltersDto filters, Integer offset, Integer limit) {
         Map<String, List<ProjectDto>> projectsByManagers = new HashMap<>();
         try {
-            int off = filters.getOffset() != null ? filters.getOffset() : 0;
-            int lim = filters.getLimit() != null ? filters.getLimit() : 20;
+            int off = offset != null ? offset : 0;
+            int lim = limit != null ? limit : 20;
             if (CollectionUtils.isEmpty(filters.getProjectManagersIds())) {
                 // Si l'utilisateur n'a pas sélectionné des CPs :
                 // 1 : On cherche la liste des CPs correspondant aux filtres

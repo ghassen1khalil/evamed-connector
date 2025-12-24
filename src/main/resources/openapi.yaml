@@ -733,7 +733,7 @@ components:
           description: Filter by the identifiers of management assistants assigned to the project.
           items:
             type: string
-        projectType:
+        projectTypes:
           type: array
           description: Filter by project types.
           items:
