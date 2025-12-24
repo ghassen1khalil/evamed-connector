@@ -3,15 +3,12 @@ package fr.has.evamed.connector.controller;
 import fr.has.evamed.connector.domain.ManagementAssistantDto;
 import fr.has.evamed.connector.domain.PaginatedProjectResponseDto;
 import fr.has.evamed.connector.domain.PaginatedProjectsByUsersResponseDto;
-import fr.has.evamed.connector.domain.PeriodFilterDto;
 import fr.has.evamed.connector.domain.ProjectFiltersDto;
 import fr.has.evamed.connector.domain.ProjectManagerDto;
-import fr.has.evamed.connector.domain.ProjectPhaseFilterDto;
 import fr.has.evamed.connector.domain.UserTypeDto;
 import fr.has.evamed.connector.model.UserProfile;
 import fr.has.evamed.connector.rest.api.ProjectsApi;
 import fr.has.evamed.connector.service.ProjectService;
-import fr.has.evamed.connector.utils.CommonUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,58 +51,15 @@ public class ProjectsController implements ProjectsApi {
         return ResponseEntity.ok(projectService.getTypologies(userType));
     }
 
-    /*@Override
-    public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByManagers(UserTypeDto userType,
-                                                                                     Integer offset,
-                                                                                     Integer limit,
-                                                                                     List<String> projectManagerId,
-                                                                                     List<String> managementAssistantId,
-                                                                                     List<String> projectType,
-                                                                                     Boolean isSensitive,
-                                                                                     Boolean isProjectFinished,
-                                                                                     ProjectPhaseFilterDto phase,
-                                                                                     PeriodFilterDto period) {
+    @Override
+    public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByManagers(ProjectFiltersDto projectFilters, Integer offset, Integer limit) {
         log.info("Projects Api - Getting projects for managers (paginated)");
-        return ResponseEntity.ok(projectService.getProjectsByUsers(UserProfile.MANAGER,
-                        CommonUtils.buildFilters(
-                                userType,
-                                offset,
-                                limit,
-                                projectManagerId,
-                                managementAssistantId,
-                                projectType,
-                                isSensitive,
-                                isProjectFinished, phase,
-                                period)
-                )
-        );
-    }*/
+        return ResponseEntity.ok(projectService.getProjectsByUsers(UserProfile.MANAGER, projectFilters, offset, limit));
+    }
 
-    /*@Override
-    public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByAssistants(UserTypeDto userType,
-                                                                                       Integer offset,
-                                                                                       Integer limit,
-                                                                                       List<String> projectManagerId,
-                                                                                       List<String> managementAssistantId,
-                                                                                       List<String> projectType,
-                                                                                       Boolean isSensitive,
-                                                                                       Boolean isProjectFinished,
-                                                                                       ProjectPhaseFilterDto phase,
-                                                                                       PeriodFilterDto period) {
-        return ResponseEntity.ok(projectService.getProjectsByUsers(UserProfile.ASSISTANT,
-                CommonUtils.buildFilters(
-                        userType,
-                        offset,
-                        limit,
-                        projectManagerId,
-                        managementAssistantId,
-                        projectType,
-                        isSensitive,
-                        isProjectFinished,
-                        phase,
-                        period)
-        )
-        );
-
-    }*/
+    @Override
+    public ResponseEntity<PaginatedProjectsByUsersResponseDto> getProjectsByAssistants(ProjectFiltersDto projectFilters, Integer offset, Integer limit) {
+        log.info("Projects Api - Getting projects for assistants (paginated)");
+        return ResponseEntity.ok(projectService.getProjectsByUsers(UserProfile.ASSISTANT, projectFilters, offset, limit));
+    }
 }
