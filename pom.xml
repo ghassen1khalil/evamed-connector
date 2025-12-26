@@ -194,43 +194,54 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Plugin jOOQ Codegen -->
-            <plugin>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-codegen-maven</artifactId>
-                <version>${jooq.version}</version> <!-- adapte à ta version -->
-                <executions>
-                    <execution>
-                        <id>generate-jooq</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <jdbc>
-                                <driver>org.postgresql.Driver</driver>
-                                <url>jdbc:postgresql://10.10.200.15:5432/evamed</url>
-                                <user>evamed</user>
-                                <password>evamed</password>
-                            </jdbc>
-                            <generator>
-                                <database>
-                                    <name>org.jooq.meta.postgres.PostgresDatabase</name>
-                                    <inputSchema>evamed</inputSchema>
-                                </database>
-                                <generate>
-                                    <daos>false</daos>
-                                    <pojos>false</pojos>
-                                </generate>
-                                <target>
-                                    <packageName>fr.has.evamed.domain.entities</packageName>
-                                    <directory>target/generated-sources/evamed</directory>
-                                </target>
-                            </generator>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Profile pour activer la génération de code jOOQ -->
+        <profile>
+            <id>jooq-codegen</id>
+            <build>
+                <plugins>
+                    <!-- Plugin jOOQ Codegen -->
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${jooq.version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-jooq</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <jdbc>
+                                        <driver>org.postgresql.Driver</driver>
+                                        <url>jdbc:postgresql://10.10.200.15:5432/evamed</url>
+                                        <user>evamed</user>
+                                        <password>evamed</password>
+                                    </jdbc>
+                                    <generator>
+                                        <database>
+                                            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                                            <inputSchema>evamed</inputSchema>
+                                        </database>
+                                        <generate>
+                                            <daos>false</daos>
+                                            <pojos>false</pojos>
+                                        </generate>
+                                        <target>
+                                            <packageName>fr.has.evamed.domain.entities</packageName>
+                                            <directory>target/generated-sources/evamed</directory>
+                                        </target>
+                                    </generator>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
