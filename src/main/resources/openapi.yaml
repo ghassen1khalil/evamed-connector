@@ -209,6 +209,171 @@ paths:
                 $ref: '#/components/schemas/PaginatedProjectsByUsersResponse'
               examples:
                 sample:
+                  summary: Paginated projects grouped by management assistant name
+                  value:
+                    items:
+                      "Martin Louise":
+                        - id: "df6d2a95-3b7e-4f4f-8d4b-31d2a72bfb1e"
+                          number: "PRJ-2024-001"
+                          type: "clinical"
+                          title: "Study on treatment efficacy"
+                          isSensitive: false
+                          applicationDomains:
+                            - "pharmaceutical"
+                          phases:
+                            - beginDate: "2024-01-15"
+                              endDate: "2024-06-15"
+                              label: "Phase I"
+                          projectManagers:
+                            primary:
+                              - firstName: "Alex"
+                                lastName: "Durand"
+                            secondary: []
+                          managementAssistant:
+                            - id: "assistant-1"
+                              firstName: "Louise"
+                              lastName: "Martin"
+                          creationAt: "2024-01-01T10:00:00Z"
+                          endAt: "2024-12-31T18:00:00Z"
+                      "Lee Sam":
+                        - id: "ef7a3b21-4c28-4a8b-9c84-43c4b6e2b2d0"
+                          number: "PRJ-2024-002"
+                          type: "epidemiological"
+                          title: "Vaccination coverage analysis"
+                          isSensitive: true
+                          applicationDomains:
+                            - "public health"
+                          phases:
+                            - beginDate: "2024-02-01"
+                              endDate: "2024-03-15"
+                              label: "Phase I"
+                          projectManagers:
+                            primary:
+                              - firstName: "Sam"
+                                lastName: "Lee"
+                            secondary: []
+                          managementAssistant: []
+                          creationAt: "2024-02-01T09:30:00Z"
+                          endAt: "2024-11-30T17:00:00Z"
+                    limit: 20
+                    offset: 0
+                    total: 2
+        "400":
+          description: Invalid query parameters supplied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: No projects matched the provided filters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /projects-by-assistants:
+    get:
+      summary: List projects grouped by management assistants
+      description: |
+        Returns the same list of projects as **GET /projects**, grouped by their management assistants.
+        Accepts identical query parameters and filters, combining project manager and
+        management assistant filters with logical AND. Results are ordered by creation date
+        descending unless a custom sort is provided.
+      operationId: getProjectsByAssistants
+      tags:
+        - Projects
+      parameters:
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - name: userType
+          in: query
+          required: true
+          description: Type of user issuing the request. Value must be "sbp" for SBP Service Manager or "sr" for SR Service Manager.
+          schema:
+            $ref: '#/components/schemas/UserType'
+        - name: projectManagersIds
+          in: query
+          required: false
+          description: Filter by the identifiers of project managers assigned to the project. Accepts multiple values.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: managementAssistantsIds
+          in: query
+          required: false
+          description: Filter by the identifiers of management assistants assigned to the project. Accepts multiple values.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: projectType
+          in: query
+          required: false
+          description: Filter by project types. Accepts multiple values.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: isSensitive
+          in: query
+          required: false
+          description: Filter by sensitive flag.
+          schema:
+            type: boolean
+        - name : isProjectFinished
+          in: query
+          required: false
+          description: Filter by project finished flag.
+          schema:
+            type: boolean
+        - name: phase
+          in: query
+          required: false
+          description: |
+            Project phase filter possible values :
+            - saisine
+            - debut_cadrage
+            - cadrage
+            - pgt
+            - dgt
+            - examen
+            - validation
+            - mise_en_ligne
+            - cloture
+          schema:
+            $ref: '#/components/schemas/ProjectPhaseFilter'
+
+        - name: period
+          in: query
+          required: false
+          description: |
+            Period filter containing a start date and an end date (inclusive).
+            Uses deepObject serialization: period[beginDate]=YYYY-MM-DD&period[endDate]=YYYY-MM-DD.
+          style: deepObject
+          explode: true
+          schema:
+            $ref: '#/components/schemas/PeriodFilter'
+      responses:
+        "200":
+          description: Paginated map of users' names (managers or assistants) to their associated projects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProjectsByUsersResponse'
+              examples:
+                sample:
                   summary: Paginated projects grouped by manager name
                   value:
                     items:
